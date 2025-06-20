@@ -101,16 +101,22 @@
 
         const produits = rows.slice(1)
           .filter(r => r[8]?.trim() === 'TRUE')
-          .map(r => ({
-            nom: r[0],
-            desc: r[1],
-            prix: r[2],
-            imageUrl: r[3].includes("http") ? r[3] : "",
-            cat: r[4],
-            stock: r[5],
-            id: r[6],
-            taille: r[7]
-          }));
+
+          
+ .map(r => {
+  const rawImage = r.find(c => c.includes("http") || c.includes("drive.google.com")) || "";
+  return {
+    nom: r[0],
+    desc: r[1],
+    prix: r[2],
+    imageUrl: rawImage,
+    cat: r[4],
+    stock: r[5],
+    id: r[6],
+    taille: r[7]
+  };
+})
+
 
         console.log("Produits visibles :", produits);
 
