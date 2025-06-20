@@ -58,7 +58,7 @@
     const panier = [];
 
     function idSafe(text) {
-      return text.replace(/[^a-zA-Z0-9]/g, '_');
+      return (text || '').replace(/[^a-zA-Z0-9]/g, '_');
     }
 
     function ajouterProduit(nom, prix) {
