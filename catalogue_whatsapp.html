@@ -1,0 +1,267 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Boutique WhatsApp</title>
+  <style>
+    body { font-family: sans-serif; margin: 0; padding-bottom: 200px; }
+    h1 { text-align: center; color: #25D366; padding: 20px 10px; }
+    .produit { display: flex; flex-direction: row; gap: 15px; align-items: flex-start; border: 1px solid #ccc; border-radius: 10px; padding: 10px; margin: 15px; background: #fff; }
+    .image-box { width: 120px; height: 120px; background-size: cover; background-position: center; background-color: #f1f1f1; border-radius: 10px; flex-shrink: 0; }
+    .produit-info { flex: 1; }
+    .tailles { font-size: 0.9em; margin: 5px 0; color: #666; }
+    .quantite { margin-top: 5px; }
+    button { background: #25D366; color: white; border: none; padding: 8px 12px; cursor: pointer; border-radius: 6px; margin-top: 5px; }
+    #panier { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; border-top: 2px solid #ccc; padding: 15px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 999; }
+    @media (max-width: 600px) {
+      .produit { flex-direction: column; align-items: center; text-align: center; }
+      .image-box { width: 100%; height: 200px; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Ma Boutique WhatsApp</h1>
+  <div id="catalogue">
+
+    <div class="produit">
+      <div class="image-box" style="background-image: url('https://drive.google.com/uc?export=view&id=1Uq3nahRnXBRrVGYHm5Fg0L2f6wr51Ehj');"></div>
+      <div class="produit-info">
+        <h2>Chaussures</h2>
+        <p>test 1</p>
+        <p><strong>55 €</strong></p>
+        <div class="tailles"><strong>Tailles :</strong> S,M,L</div>
+        <div class="quantite">
+          Quantité :
+          <input type="number" id="qte-Chaussures" value="1" min="1" style="width:60px;" />
+        </div>
+        <button onclick="ajouterProduit('Chaussures', '55')">Ajouter au panier</button>
+      </div>
+    </div>
+    
+    <div class="produit">
+      <div class="image-box" style="background-image: url('https://drive.google.com/uc?export=view&id=1Uq3nahRnXBRrVGYHm5Fg0L2f6wr51Ehj');"></div>
+      <div class="produit-info">
+        <h2>Chaussures</h2>
+        <p>Jolies chaussures</p>
+        <p><strong>55 €</strong></p>
+        <div class="tailles"><strong>Tailles :</strong> S,M,L</div>
+        <div class="quantite">
+          Quantité :
+          <input type="number" id="qte-Chaussures" value="1" min="1" style="width:60px;" />
+        </div>
+        <button onclick="ajouterProduit('Chaussures', '55')">Ajouter au panier</button>
+      </div>
+    </div>
+    
+    <div class="produit">
+      <div class="image-box" style="background-image: url('https://drive.google.com/uc?export=view&id=1Uq3nahRnXBRrVGYHm5Fg0L2f6wr51Ehj');"></div>
+      <div class="produit-info">
+        <h2>Chaussures</h2>
+        <p>Jolies chaussures</p>
+        <p><strong>55 €</strong></p>
+        <div class="tailles"><strong>Tailles :</strong> S,M,L</div>
+        <div class="quantite">
+          Quantité :
+          <input type="number" id="qte-Chaussures" value="1" min="1" style="width:60px;" />
+        </div>
+        <button onclick="ajouterProduit('Chaussures', '55')">Ajouter au panier</button>
+      </div>
+    </div>
+    
+    <div class="produit">
+      <div class="image-box" style="background-image: url('https://drive.google.com/uc?export=view&id=1xsiEqmaUINLsDVu09zOl2t2Eqie7V5D4');"></div>
+      <div class="produit-info">
+        <h2></h2>
+        <p></p>
+        <p><strong> €</strong></p>
+        
+        <div class="quantite">
+          Quantité :
+          <input type="number" id="qte-" value="1" min="1" style="width:60px;" />
+        </div>
+        <button onclick="ajouterProduit('', '')">Ajouter au panier</button>
+      </div>
+    </div>
+    
+    <div class="produit">
+      <div class="image-box" style="background-image: url('https://drive.google.com/uc?export=view&id=1uh-_xnYanU2kh3elz1lpiwfxj-7isyWR');"></div>
+      <div class="produit-info">
+        <h2></h2>
+        <p></p>
+        <p><strong> €</strong></p>
+        
+        <div class="quantite">
+          Quantité :
+          <input type="number" id="qte-" value="1" min="1" style="width:60px;" />
+        </div>
+        <button onclick="ajouterProduit('', '')">Ajouter au panier</button>
+      </div>
+    </div>
+    
+    <div class="produit">
+      <div class="image-box" style="background-image: url('https://drive.google.com/uc?export=view&id=1f9dOE0iKxFxpJgB014jFyGVhtzH-Y2tr');"></div>
+      <div class="produit-info">
+        <h2></h2>
+        <p></p>
+        <p><strong> €</strong></p>
+        
+        <div class="quantite">
+          Quantité :
+          <input type="number" id="qte-" value="1" min="1" style="width:60px;" />
+        </div>
+        <button onclick="ajouterProduit('', '')">Ajouter au panier</button>
+      </div>
+    </div>
+    
+    <div class="produit">
+      <div class="image-box" style="background-image: url('https://drive.google.com/uc?export=view&id=1PMU2sHMXRbQMAqHCRTO9uuCn12a55W8A');"></div>
+      <div class="produit-info">
+        <h2></h2>
+        <p></p>
+        <p><strong> €</strong></p>
+        
+        <div class="quantite">
+          Quantité :
+          <input type="number" id="qte-" value="1" min="1" style="width:60px;" />
+        </div>
+        <button onclick="ajouterProduit('', '')">Ajouter au panier</button>
+      </div>
+    </div>
+    
+    <div class="produit">
+      <div class="image-box" style="background-image: url('https://drive.google.com/uc?export=view&id=1KlvXwPuKFwL9dfLzpXHBV7oT_eV5_4OC');"></div>
+      <div class="produit-info">
+        <h2></h2>
+        <p></p>
+        <p><strong> €</strong></p>
+        
+        <div class="quantite">
+          Quantité :
+          <input type="number" id="qte-" value="1" min="1" style="width:60px;" />
+        </div>
+        <button onclick="ajouterProduit('', '')">Ajouter au panier</button>
+      </div>
+    </div>
+    
+    <div class="produit">
+      <div class="image-box" style="background-image: url('https://drive.google.com/uc?export=view&id=110HCSQsAezBPUY-FuQry2tnO6h5bYrQD');"></div>
+      <div class="produit-info">
+        <h2></h2>
+        <p></p>
+        <p><strong> €</strong></p>
+        
+        <div class="quantite">
+          Quantité :
+          <input type="number" id="qte-" value="1" min="1" style="width:60px;" />
+        </div>
+        <button onclick="ajouterProduit('', '')">Ajouter au panier</button>
+      </div>
+    </div>
+    
+    <div class="produit">
+      <div class="image-box" style="background-image: url('https://drive.google.com/uc?export=view&id=18EXAL4sv0ZQQ-S6yONyVK3Tg8nU_faON');"></div>
+      <div class="produit-info">
+        <h2></h2>
+        <p></p>
+        <p><strong> €</strong></p>
+        
+        <div class="quantite">
+          Quantité :
+          <input type="number" id="qte-" value="1" min="1" style="width:60px;" />
+        </div>
+        <button onclick="ajouterProduit('', '')">Ajouter au panier</button>
+      </div>
+    </div>
+    
+    <div class="produit">
+      <div class="image-box" style="background-image: url('https://drive.google.com/uc?export=view&id=1nqJtxYOymih8lwhtltLc9yuXGuPE9g6t');"></div>
+      <div class="produit-info">
+        <h2></h2>
+        <p></p>
+        <p><strong> €</strong></p>
+        
+        <div class="quantite">
+          Quantité :
+          <input type="number" id="qte-" value="1" min="1" style="width:60px;" />
+        </div>
+        <button onclick="ajouterProduit('', '')">Ajouter au panier</button>
+      </div>
+    </div>
+    
+    <div class="produit">
+      <div class="image-box" style="background-image: url('https://drive.google.com/uc?export=view&id=1jWYbZYK67cZ6CqTmnDH-7GCR0jpNvl2i');"></div>
+      <div class="produit-info">
+        <h2></h2>
+        <p></p>
+        <p><strong> €</strong></p>
+        
+        <div class="quantite">
+          Quantité :
+          <input type="number" id="qte-" value="1" min="1" style="width:60px;" />
+        </div>
+        <button onclick="ajouterProduit('', '')">Ajouter au panier</button>
+      </div>
+    </div>
+    
+    <div class="produit">
+      <div class="image-box" style="background-image: url('https://drive.google.com/uc?export=view&id=1C76ask_0QKvD5-hgLNrHS8-St06GC0uq');"></div>
+      <div class="produit-info">
+        <h2></h2>
+        <p></p>
+        <p><strong> €</strong></p>
+        
+        <div class="quantite">
+          Quantité :
+          <input type="number" id="qte-" value="1" min="1" style="width:60px;" />
+        </div>
+        <button onclick="ajouterProduit('', '')">Ajouter au panier</button>
+      </div>
+    </div>
+    
+  </div>
+  <div id="panier">
+    <h2>🛒 Mon Panier</h2>
+    <ul id="liste-panier"></ul>
+    <p>Total : <strong><span id="total-panier">0.00</span> €</strong></p>
+    <label for="livraison">Mode :</label>
+    <select id="livraison">
+      <option value="Livraison">Livraison</option>
+      <option value="Retrait">Retrait</option>
+    </select>
+    <br><br>
+    <button onclick="commander()">Envoyer ma commande via WhatsApp</button>
+  </div>
+  <script>
+    const panier = [];
+    function idSafe(text) { return text.replace(/[^a-zA-Z0-9]/g, '_'); }
+    function ajouterProduit(nom, prix) {
+      const id = idSafe(nom);
+      const quantite = parseInt(document.getElementById('qte-' + id).value) || 1;
+      panier.push({ nom, prix, quantite });
+      afficherPanier();
+    }
+    function afficherPanier() {
+      let html = '';
+      let total = 0;
+      panier.forEach(p => {
+        html += '<li>' + p.quantite + ' × ' + p.nom + ' - ' + p.prix + ' €</li>';
+        total += parseFloat(p.prix) * p.quantite;
+      });
+      document.getElementById('liste-panier').innerHTML = html;
+      document.getElementById('total-panier').innerText = total.toFixed(2);
+    }
+    function commander() {
+      const livraison = document.getElementById('livraison').value;
+      let message = 'Bonjour, je souhaite commander :\n\n';
+      panier.forEach(p => {
+        message += '- ' + p.quantite + ' × ' + p.nom + ' (' + p.prix + ' €)\n';
+      });
+      message += '\nMode : ' + livraison;
+      const lien = 'https://wa.me/33767580723?text=' + encodeURIComponent(message);
+      window.open(lien, '_blank');
+    }
+  </script>
+</body>
+</html>
