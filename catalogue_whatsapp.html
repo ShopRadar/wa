@@ -98,16 +98,37 @@
 
       const produits = rows.slice(1)
         .filter(r => r.length >= 9 && /TRUE/i.test(r[8]?.trim()))
-        .map(r => ({
-          nom: r[0],
-          desc: r[1],
-          prix: r[2],
-          imageUrl: r[3].includes("http") ? r[3] : '',
-          cat: r[4],
-          stock: r[5],
-          id: r[6],
-          taille: r[7]
-        }));
+        
+produits.forEach(p => {
+  const nom = p["Nom Produit"]?.trim();
+  const desc = p["Description "]?.trim();
+  const prix = p["Prix "]?.replace("€", "").trim();
+  const image = p["Image URL"]?.trim();
+  const tailles = p["Taille"]?.trim();
+  const visible = (p["Visible"] || p["Visible\r"])?.toUpperCase().trim() === 'TRUE';
+
+  if (!visible || !nom) return;
+
+  const id = idSafe(nom);
+  const html = `
+    <div class="produit">
+      <div class="image-box" style="background-image: url('${image}');"></div>
+      <div class="produit-info">
+        <h2>${nom}</h2>
+        <p>${desc}</p>
+        <p><strong>${prix} €</strong></p>
+        ${tailles ? `<div class="tailles"><strong>Tailles :</strong> ${tailles}</div>` : ''}
+        <div class="quantite">
+          Quantité :
+          <input type="number" id="qte-${id}" value="1" min="1" style="width:60px;" />
+        </div>
+        <button onclick="ajouterProduit('${nom}', '${prix}')">Ajouter au panier</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('catalogue').insertAdjacentHTML('beforeend', html);
+});
+
 
       console.log("✅ Produits visibles :", produits);
 
