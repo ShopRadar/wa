@@ -53,89 +53,88 @@
     <button onclick="commander()">Envoyer ma commande via WhatsApp</button>
   </div>
 
-  <script>
-    const panier = [];
+<script>
+  const panier = [];
 
-    function idSafe(text) {
-      return text.replace(/[^a-zA-Z0-9]/g, '_');
-    }
+  function idSafe(text) {
+    return text.replace(/[^a-zA-Z0-9]/g, '_');
+  }
 
-    function ajouterProduit(nom, prix) {
-      const id = idSafe(nom);
-      const quantite = parseInt(document.getElementById('qte-' + id).value) || 1;
-      panier.push({ nom, prix, quantite });
-      afficherPanier();
-    }
+  function ajouterProduit(nom, prix) {
+    const id = idSafe(nom);
+    const quantite = parseInt(document.getElementById('qte-' + id).value) || 1;
+    panier.push({ nom, prix, quantite });
+    afficherPanier();
+  }
 
-    function afficherPanier() {
-      let html = '';
-      let total = 0;
-      panier.forEach(p => {
-        html += '<li>' + p.quantite + ' × ' + p.nom + ' - ' + p.prix + ' €</li>';
-        total += parseFloat(p.prix) * p.quantite;
-      });
-      document.getElementById('liste-panier').innerHTML = html;
-      document.getElementById('total-panier').innerText = total.toFixed(2);
-    }
+  function afficherPanier() {
+    let html = '';
+    let total = 0;
+    panier.forEach(p => {
+      html += `<li>${p.quantite} × ${p.nom} - ${p.prix} €</li>`;
+      total += parseFloat(p.prix) * p.quantite;
+    });
+    document.getElementById('liste-panier').innerHTML = html;
+    document.getElementById('total-panier').innerText = total.toFixed(2);
+  }
 
-    function commander() {
-      const livraison = document.getElementById('livraison').value;
-      let message = 'Bonjour, je souhaite commander :\n\n';
-      panier.forEach(p => {
-        message += '- ' + p.quantite + ' × ' + p.nom + ' (' + p.prix + ' €)\n';
-      });
-      message += '\nMode : ' + livraison;
-      const lien = 'https://wa.me/33767580723?text=' + encodeURIComponent(message);
-      window.open(lien, '_blank');
-    }
+  function commander() {
+    const livraison = document.getElementById('livraison').value;
+    let message = 'Bonjour, je souhaite commander :\n\n';
+    panier.forEach(p => {
+      message += `- ${p.quantite} × ${p.nom} (${p.prix} €)\n`;
+    });
+    message += '\nMode : ' + livraison;
+    const lien = 'https://wa.me/33767580723?text=' + encodeURIComponent(message);
+    window.open(lien, '_blank');
+  }
 
-    // 🔁 Charger les produits depuis Google Sheet publié en CSV
-    fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vQ907oIlbF-e-80I-pn89CWFJ4R3er2Q9ycZt5j63oaraExSQvdOznc33F_20mh1z_oMKpCSWDw8MtO/pub?gid=0&single=true&output=csv")
-      .then(r => r.text())
-      .then(csv => {
-        const rows = csv.split('\n').map(r => r.split(','));
-        console.log("Lignes CSV :", rows);
+  // 🔁 Charger les produits depuis Google Sheets (CSV publié)
+  fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vQ907oIlbF-e-80I-pn89CWFJ4R3er2Q9ycZt5j63oaraExSQvdOznc33F_20mh1z_oMKpCSWDw8MtO/pub?gid=0&single=true&output=csv")
+    .then(r => r.text())
+    .then(csv => {
+      const rows = csv.split('\n').map(r => r.split(','));
+      console.log("🔍 Lignes CSV :", rows);
 
-        const produits = rows
-          .filter(r => r[0]?.trim() && r[8]?.trim() === 'TRUE') // nom produit non vide et visible
-          .map(r => {
-            const image = r.find(col => col.includes("http")) || '';
-            return {
-              nom: r[0],
-              desc: r[1],
-              prix: r[2],
-              imageUrl: image,
-              cat: r[4],
-              stock: r[5],
-              id: r[6],
-              taille: r[7]
-            };
-          });
+      const produits = rows.slice(1)
+        .filter(r => r.length >= 9 && /TRUE/i.test(r[8]?.trim()))
+        .map(r => ({
+          nom: r[0],
+          desc: r[1],
+          prix: r[2],
+          imageUrl: r[3].includes("http") ? r[3] : '',
+          cat: r[4],
+          stock: r[5],
+          id: r[6],
+          taille: r[7]
+        }));
 
-        console.log("Produits visibles :", produits);
+      console.log("✅ Produits visibles :", produits);
 
-        const catalogue = document.getElementById('catalogue');
-        produits.forEach(p => {
-          const id = idSafe(p.nom);
-          const tailles = p.taille ? `<div class="tailles"><strong>Tailles :</strong> ${p.taille}</div>` : '';
-          const produitHTML = `
-            <div class="produit">
-              <div class="image-box" style="background-image: url('${p.imageUrl}');"></div>
-              <div class="produit-info">
-                <h2>${p.nom}</h2>
-                <p>${p.desc}</p>
-                <p><strong>${p.prix} €</strong></p>
-                ${tailles}
-                <div class="quantite">
-                  Quantité :
-                  <input type="number" id="qte-${id}" value="1" min="1" style="width:60px;" />
-                </div>
-                <button onclick="ajouterProduit('${p.nom}', '${p.prix}')">Ajouter au panier</button>
+      const catalogue = document.getElementById('catalogue');
+      produits.forEach(p => {
+        const id = idSafe(p.nom);
+        const tailles = p.taille ? `<div class="tailles"><strong>Tailles :</strong> ${p.taille}</div>` : '';
+        const produitHTML = `
+          <div class="produit">
+            <div class="image-box" style="background-image: url('${p.imageUrl}');"></div>
+            <div class="produit-info">
+              <h2>${p.nom}</h2>
+              <p>${p.desc}</p>
+              <p><strong>${p.prix} €</strong></p>
+              ${tailles}
+              <div class="quantite">
+                Quantité :
+                <input type="number" id="qte-${id}" value="1" min="1" style="width:60px;" />
               </div>
-            </div>`;
-          catalogue.insertAdjacentHTML('beforeend', produitHTML);
-        });
+              <button onclick="ajouterProduit('${p.nom}', '${p.prix}')">Ajouter au panier</button>
+            </div>
+          </div>
+        `;
+        catalogue.insertAdjacentHTML('beforeend', produitHTML);
       });
-  </script>
+    });
+</script>
+
 </body>
 </html>
