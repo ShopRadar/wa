@@ -8,47 +8,24 @@
     body { font-family: sans-serif; margin: 0; padding-bottom: 200px; background: #f9f9f9; }
     h1 { text-align: center; color: #25D366; padding: 20px 10px; }
     .produit {
-      display: flex;
-      flex-direction: row;
-      gap: 15px;
-      align-items: flex-start;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      padding: 10px;
-      margin: 15px;
-      background: #fff;
+      display: flex; flex-direction: row; gap: 15px; align-items: flex-start;
+      border: 1px solid #ccc; border-radius: 10px; padding: 10px; margin: 15px; background: #fff;
     }
     .image-box {
-      width: 120px;
-      height: 120px;
-      background-size: cover;
-      background-position: center;
-      background-color: #f1f1f1;
-      border-radius: 10px;
-      flex-shrink: 0;
+      width: 120px; height: 120px; background-size: cover; background-position: center;
+      background-color: #f1f1f1; border-radius: 10px; flex-shrink: 0;
     }
     .produit-info { flex: 1; }
     .tailles { font-size: 0.9em; margin: 5px 0; color: #666; }
     .quantite { margin-top: 5px; }
     button {
-      background: #25D366;
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      cursor: pointer;
-      border-radius: 6px;
-      margin-top: 5px;
+      background: #25D366; color: white; border: none; padding: 8px 12px;
+      cursor: pointer; border-radius: 6px; margin-top: 5px;
     }
     #panier {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background: #fff;
-      border-top: 2px solid #ccc;
-      padding: 15px;
-      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-      z-index: 999;
+      position: fixed; bottom: 0; left: 0; width: 100%;
+      background: #fff; border-top: 2px solid #ccc; padding: 15px;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 999;
     }
     @media (max-width: 600px) {
       .produit { flex-direction: column; align-items: center; text-align: center; }
@@ -109,25 +86,38 @@
       window.open(lien, '_blank');
     }
 
-    // 🟢 Charger les produits depuis le Google Sheet CSV
-    fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vQ907oIlbF-e-80I-pn89CWFJ4R3er2Q9ycZt5j63oaraExSQvdOznc33F_20mh1z_oMKpCSWDw8MtO/pub?gid=0&single=true&output=csv")
-      .then(r => r.text())
+    // 🔄 Charger produits depuis CSV public Google Sheets
+    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ907oIlbF-e-80I-pn89CWFJ4R3er2Q9ycZt5j63oaraExSQvdOznc33F_20mh1z_oMKpCSWDw8MtO/pub?gid=0&single=true&output=csv";
+    fetch(csvUrl)
+      .then(response => {
+        if (!response.ok) throw new Error("Échec du chargement CSV");
+        return response.text();
+      })
       .then(csv => {
+        console.log("CSV brut :", csv);
         const rows = csv.split('\n').map(r => r.split(','));
+        console.log("Lignes CSV : ", rows);
+
         const produits = rows.slice(1)
           .filter(r => r[8]?.trim() === 'TRUE')
           .map(r => ({
             nom: r[0],
             desc: r[1],
             prix: r[2],
-            imageUrl: r[3].includes("http") ? r[3] : "", // uniquement lien direct
+            imageUrl: r[3].includes("http") ? r[3] : "",
             cat: r[4],
             stock: r[5],
             id: r[6],
             taille: r[7]
           }));
 
+        console.log("Produits visibles :", produits);
+
         const catalogue = document.getElementById('catalogue');
+        if (produits.length === 0) {
+          alert("Aucun produit affiché (vérifie la colonne 'Visible' dans ton Google Sheets)");
+        }
+
         produits.forEach(p => {
           const id = idSafe(p.nom);
           const tailles = p.taille ? `<div class="tailles"><strong>Tailles :</strong> ${p.taille}</div>` : '';
@@ -148,6 +138,10 @@
             </div>`;
           catalogue.insertAdjacentHTML('beforeend', produitHTML);
         });
+      })
+      .catch(error => {
+        console.error("Erreur chargement catalogue :", error);
+        alert("❌ Erreur de chargement du catalogue : " + error.message);
       });
   </script>
 </body>
