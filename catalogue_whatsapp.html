@@ -53,7 +53,6 @@
     <button onclick="commander()">Envoyer ma commande via WhatsApp</button>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script>
   const panier = [];
@@ -91,7 +90,6 @@
     window.open(lien, '_blank');
   }
 
-  // 🟢 Charger les produits depuis le CSV publié
   fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vQ907oIlbF-e-80I-pn89CWFJ4R3er2Q9ycZt5j63oaraExSQvdOznc33F_20mh1z_oMKpCSWDw8MtO/pub?gid=0&single=true&output=csv")
     .then(r => r.text())
     .then(csvText => {
@@ -102,19 +100,17 @@
 
       const catalogue = document.getElementById('catalogue');
       produits.forEach(p => {
-        const nom = p["Nom Produit"]?.trim();
-        const desc = p["Description "]?.trim();
-        const prix = p["Prix "]?.replace("€", "").trim();
-        const tailles = p["Taille"]?.trim();
-        let image = p["Image URL"]?.trim().replace(/[\r\n]+/g, '');
+        const nom = p["Nom Produit"]?.trim() || "Produit";
+        const desc = p["Description "]?.trim() || "";
+        const prix = (p["Prix "] || "").replace("€", "").trim();
+        const tailles = p["Taille"]?.trim() || "";
 
-        // log image pour debug
-        console.log(`🖼️ Image URL for "${nom}":`, image);
-
-        // fallback image
-        if (!image || image === '') {
+        let image = (p["Image URL"] || "").trim().replace(/[\r\n]+/g, '');
+        if (!image) {
           image = "https://via.placeholder.com/120?text=Image";
         }
+
+        console.log(`🖼️ Image URL pour "${nom}" :`, image);
 
         const id = idSafe(nom);
         const produitHTML = `
@@ -137,6 +133,7 @@
       });
     });
 </script>
+
 
 </body>
 </html>
