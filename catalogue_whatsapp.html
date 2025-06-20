@@ -99,39 +99,40 @@
       console.log("✅ Produits visibles :", produits);
 
       const catalogue = document.getElementById('catalogue');
-      produits.forEach(p => {
-        const nom = p["Nom Produit"]?.trim() || "Produit";
-        const desc = p["Description "]?.trim() || "";
-        const prix = (p["Prix "] || "").replace("€", "").trim();
-        const tailles = p["Taille"]?.trim() || "";
+      
+produits.forEach((p, index) => {
+  const id = idSafe(p["Nom Produit"] || "Produit" + index);
+  const nom = p["Nom Produit"]?.trim() || "Produit";
+  const prix = p["Prix "]?.trim() || "0";
+  const desc = p["Description "]?.trim() || "";
+  const tailles = p.Taille ? `<div class="tailles"><strong>Tailles :</strong> ${p.Taille}</div>` : '';
+  
+  let image = (p["Image URL"] || "").replace(/[\r\n"]/g, '').trim();
+  if (!image || !image.startsWith("http")) {
+    image = `https://via.placeholder.com/120?text=${encodeURIComponent(nom)}`;
+  }
 
-        let image = (p["Image URL"] || "").trim().replace(/[\r\n]+/g, '');
-        if (!image) {
-image = "https://dummyimage.com/120x120/cccccc/ffffff&text=Image";
-        }
+  console.log(`🖼️ Image URL pour "${nom}" :`, image);
 
-        console.log(`🖼️ Image URL pour "${nom}" :`, image);
+  const produitHTML = `
+    <div class="produit">
+      <div class="image-box" style="background-image: url('${image}');"></div>
+      <div class="produit-info">
+        <h2>${nom}</h2>
+        <p>${desc}</p>
+        <p><strong>${prix}</strong></p>
+        ${tailles}
+        <div class="quantite">
+          Quantité :
+          <input type="number" id="qte-${id}" value="1" min="1" style="width:60px;" />
+        </div>
+        <button onclick="ajouterProduit('${nom}', '${prix}')">Ajouter au panier</button>
+      </div>
+    </div>
+  `;
+  catalogue.insertAdjacentHTML('beforeend', produitHTML);
+});
 
-        const id = idSafe(nom);
-        const produitHTML = `
-          <div class="produit">
-            <div class="image-box" style="background-image: url('${image}');"></div>
-            <div class="produit-info">
-              <h2>${nom}</h2>
-              <p>${desc}</p>
-              <p><strong>${prix} €</strong></p>
-              ${tailles ? `<div class="tailles"><strong>Tailles :</strong> ${tailles}</div>` : ''}
-              <div class="quantite">
-                Quantité :
-                <input type="number" id="qte-${id}" value="1" min="1" style="width:60px;" />
-              </div>
-              <button onclick="ajouterProduit('${nom}', '${prix}')">Ajouter au panier</button>
-            </div>
-          </div>
-        `;
-        catalogue.insertAdjacentHTML('beforeend', produitHTML);
-      });
-    });
 </script>
 
 
