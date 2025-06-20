@@ -106,7 +106,7 @@
         const tailles = p.Taille ? `<div class="tailles"><strong>Tailles :</strong> ${p.Taille}</div>` : '';
         let image = (p["Image URL"] || "").replace(/[\r\n"]/g, '').trim();
         if (!image || !image.startsWith("http")) {
-          image = `https://via.placeholder.com/120?text=${encodeURIComponent(nom)}`;
+image = `https://placehold.co/120x120?text=${encodeURIComponent(nom)}`;
         }
 
         console.log(`🖼️ Image URL pour "${nom}" :`, image);
