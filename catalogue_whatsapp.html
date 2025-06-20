@@ -136,5 +136,78 @@
     });
 </script>
 
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script>
+  const panier = [];
+
+  function idSafe(text) {
+    return text.replace(/[^a-zA-Z0-9]/g, '_');
+  }
+
+  function ajouterProduit(nom, prix) {
+    const id = idSafe(nom);
+    const quantite = parseInt(document.getElementById('qte-' + id).value) || 1;
+    panier.push({ nom, prix, quantite });
+    afficherPanier();
+  }
+
+  function afficherPanier() {
+    let html = '';
+    let total = 0;
+    panier.forEach(p => {
+      html += `<li>${p.quantite} × ${p.nom} - ${p.prix} €</li>`;
+      total += parseFloat(p.prix) * p.quantite;
+    });
+    document.getElementById('liste-panier').innerHTML = html;
+    document.getElementById('total-panier').innerText = total.toFixed(2);
+  }
+
+  function commander() {
+    const livraison = document.getElementById('livraison').value;
+    let message = 'Bonjour, je souhaite commander :\n\n';
+    panier.forEach(p => {
+      message += `- ${p.quantite} × ${p.nom} (${p.prix} €)\n`;
+    });
+    message += '\nMode : ' + livraison;
+    const lien = 'https://wa.me/33767580723?text=' + encodeURIComponent(message);
+    window.open(lien, '_blank');
+  }
+
+  // 🟢 PapaParse pour bien parser CSV avec guillemets
+  fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vQ907oIlbF-e-80I-pn89CWFJ4R3er2Q9ycZt5j63oaraExSQvdOznc33F_20mh1z_oMKpCSWDw8MtO/pub?gid=0&single=true&output=csv")
+    .then(r => r.text())
+    .then(csvText => {
+      const parsed = Papa.parse(csvText.trim(), { header: true });
+      const produits = parsed.data.filter(p => (p.Visible || '').toUpperCase().trim() === 'TRUE');
+
+      console.log("✅ Produits visibles :", produits);
+
+      const catalogue = document.getElementById('catalogue');
+      produits.forEach(p => {
+        const id = idSafe(p["Nom Produit"]);
+        const tailles = p.Taille ? `<div class="tailles"><strong>Tailles :</strong> ${p.Taille}</div>` : '';
+        const image = p["Image URL"]?.includes("http") ? p["Image URL"] : '';
+
+        const produitHTML = `
+          <div class="produit">
+            <div class="image-box" style="background-image: url('${image}');"></div>
+            <div class="produit-info">
+              <h2>${p["Nom Produit"]}</h2>
+              <p>${p["Description "]}</p>
+              <p><strong>${p["Prix "]} €</strong></p>
+              ${tailles}
+              <div class="quantite">
+                Quantité :
+                <input type="number" id="qte-${id}" value="1" min="1" style="width:60px;" />
+              </div>
+              <button onclick="ajouterProduit('${p["Nom Produit"]}', '${p["Prix "]}')">Ajouter au panier</button>
+            </div>
+          </div>
+        `;
+        catalogue.insertAdjacentHTML('beforeend', produitHTML);
+      });
+    });
+</script>
+
 </body>
 </html>
