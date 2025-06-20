@@ -109,9 +109,9 @@
       window.open(lien, '_blank');
     }
 
-    // 🔁 Charger le catalogue depuis Google Sheets (CSV publié)
-    fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vQ907oIlbF-e-80I-pn89CWFJ4R3er2Q9ycZt5j63oaraExSQvdOznc33F_20mh1z_oMKpCSWDw8MtO/pub?output=csv")
-      .then(response => response.text())
+    // 🟢 Charger les produits depuis le Google Sheet CSV
+    fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vQ907oIlbF-e-80I-pn89CWFJ4R3er2Q9ycZt5j63oaraExSQvdOznc33F_20mh1z_oMKpCSWDw8MtO/pub?gid=0&single=true&output=csv")
+      .then(r => r.text())
       .then(csv => {
         const rows = csv.split('\n').map(r => r.split(','));
         const produits = rows.slice(1)
@@ -120,7 +120,7 @@
             nom: r[0],
             desc: r[1],
             prix: r[2],
-            imageUrl: r[3].match(/"([^"]+)"/)?.[1] || '',
+            imageUrl: r[3].includes("http") ? r[3] : "", // uniquement lien direct
             cat: r[4],
             stock: r[5],
             id: r[6],
@@ -145,8 +145,7 @@
                 </div>
                 <button onclick="ajouterProduit('${p.nom}', '${p.prix}')">Ajouter au panier</button>
               </div>
-            </div>
-          `;
+            </div>`;
           catalogue.insertAdjacentHTML('beforeend', produitHTML);
         });
       });
