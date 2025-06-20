@@ -110,7 +110,7 @@
     }
 
     // 🟢 Charger les produits depuis le Google Sheet CSV
-    fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vQ907oIlbF-e-80I-pn89CWFJ4R3er2Q9ycZt5j63oaraExSQvdOznc33F_20mh1z_oMKpCSWDw8MtO/pubhtml?gid=0&single=true")
+    fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vQ907oIlbF-e-80I-pn89CWFJ4R3er2Q9ycZt5j63oaraExSQvdOznc33F_20mh1z_oMKpCSWDw8MtO/pub?gid=0&single=true&output=csv")
       .then(r => r.text())
       .then(csv => {
         const rows = csv.split('\n').map(r => r.split(','));
