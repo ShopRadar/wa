@@ -97,6 +97,11 @@
         const produits = parsed.data.filter(p => (p.Visible || '').toUpperCase().trim() === 'TRUE');
 
         console.log("✅ Produits visibles :", produits);
+console.log("Image test URL:", image);
+const testImg = new Image();
+testImg.src = image;
+testImg.onload = () => console.log("✅ L'image charge bien !");
+testImg.onerror = () => console.error("❌ Problème de chargement d'image :", image);
 
         const catalogue = document.getElementById('catalogue');
         produits.forEach(p => {
