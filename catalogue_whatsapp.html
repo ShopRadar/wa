@@ -265,3 +265,29 @@
   </script>
 </body>
 </html>
+
+
+
+<script>
+fetch("https://docs.google.com/spreadsheets/d/e/TON_URL/pub?output=csv")
+  .then(response => response.text())
+  .then(csv => {
+    const rows = csv.split('\n').map(r => r.split(','));
+    const headers = rows[0];
+    const produits = rows.slice(1)
+      .filter(r => r[8] === 'TRUE') // Colonne 'Visible'
+      .map(r => ({
+        nom: r[0],
+        desc: r[1],
+        prix: r[2],
+        imageUrl: r[3].match(/"([^"]+)"/)?.[1] || '', // extrait depuis =IMAGE(...)
+        cat: r[4],
+        stock: r[5],
+        id: r[6],
+        taille: r[7]
+      }));
+    
+    // Ensuite, tu construis dynamiquement le DOM ici...
+    console.log(produits);
+  });
+</script>
