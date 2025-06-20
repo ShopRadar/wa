@@ -102,7 +102,7 @@
         produits.forEach(p => {
           const id = idSafe(p["Nom Produit"]);
           const tailles = p.Taille ? `<div class="tailles"><strong>Tailles :</strong> ${p.Taille}</div>` : '';
-          const image = p["Image URL"]?.includes("http") ? p["Image URL"].trim() : '';
+const image = p["Image URL"]?.replace(/[\r\n]+/g, '').trim();
 
 
           const produitHTML = `
