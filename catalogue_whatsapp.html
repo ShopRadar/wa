@@ -117,7 +117,8 @@
 let image = (p["Image URL"] || "").replace(/[\r\n"]/g, '').trim();
 
 // Si image est de type =IMAGE("https://drive.google.com/uc?export=view&id=xxxxx"), on l’extrait
-const formulaMatch = image.match(/IMAGE\("([^"]+)"\)/i);
+// Gère =IMAGE("https://...") en CSV
+const formulaMatch = image.match(/=IMAGE\("([^"]+)"\)/i);
 if (formulaMatch) {
   image = formulaMatch[1]; // extrait l’URL depuis la formule
 }
