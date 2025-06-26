@@ -116,18 +116,19 @@
 
 let image = (p["Image URL"] || "").replace(/[\r\n"]/g, '').trim();
 
-// Extraire l'URL si c’est une formule =IMAGE("...")
-const imageMatch = image.match(/IMAGE\("([^"]+)"\)/i);
-if (imageMatch) {
-  image = imageMatch[1];
+// Si image est de type =IMAGE("https://drive.google.com/uc?export=view&id=xxxxx"), on l’extrait
+const formulaMatch = image.match(/IMAGE\("([^"]+)"\)/i);
+if (formulaMatch) {
+  image = formulaMatch[1]; // extrait l’URL depuis la formule
 }
 
-// Extraire l’ID Google Drive si présent
-const match = image.match(/id=([a-zA-Z0-9_-]+)/);
-if (match) {
-  const fileId = match[1];
+// Si image contient id=... on convertit vers lh3.googleusercontent.com
+const idMatch = image.match(/id=([a-zA-Z0-9_-]+)/);
+if (idMatch) {
+  const fileId = idMatch[1];
   image = `https://lh3.googleusercontent.com/d/${fileId}`;
 }
+
 
 
           if (!image || !image.startsWith("http")) {
