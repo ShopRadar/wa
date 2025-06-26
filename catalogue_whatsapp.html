@@ -99,64 +99,61 @@
       window.open(lien, '_blank');
     }
 
-    fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vQ907oIlbF-e-80I-pn89CWFJ4R3er2Q9ycZt5j63oaraExSQvdOznc33F_20mh1z_oMKpCSWDw8MtO/pub?gid=0&single=true&output=csv")
-      .then(r => r.text())
-      .then(csvText => {
-        const parsed = Papa.parse(csvText.trim(), { header: true });
-        const produits = parsed.data.filter(p => (p.Visible || '').toUpperCase().trim() === 'TRUE');
-        console.log("✅ Produits visibles :", produits);
 
-        const catalogue = document.getElementById('catalogue');
-        produits.forEach((p, index) => {
-          const id = (p["Nom Produit"] || "Produit" + index).replace(/[^a-zA-Z0-9]/g, '_');
-          const nom = p["Nom Produit"]?.trim() || "Produit";
-          const prix = p["Prix "]?.trim() || "0";
-          const desc = p["Description "]?.trim() || "";
-          const tailles = p.Taille ? `<div class="tailles"><strong>Tailles :</strong> ${p.Taille}</div>` : '';
+  fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vQ907oIlbF-e-80I-pn89CWFJ4R3er2Q9ycZt5j63oaraExSQvdOznc33F_20mh1z_oMKpCSWDw8MtO/pub?gid=0&single=true&output=csv")
+    .then(r => r.text())
+    .then(csvText => {
+      const parsed = Papa.parse(csvText.trim(), { header: true });
+      const produits = parsed.data.filter(p => (p.Visible || '').toUpperCase().trim() === 'TRUE');
 
-let image = (p["Image URL"] || "").replace(/[\r\n"]/g, '').trim();
+      const catalogue = document.getElementById('catalogue');
+      produits.forEach((p, index) => {
+        const id = (p["Nom Produit"] || "Produit" + index).replace(/[^a-zA-Z0-9]/g, '_');
+        const nom = p["Nom Produit"]?.trim() || "Produit";
+        const prix = p["Prix "]?.trim() || "0";
+        const desc = p["Description "]?.trim() || "";
+        const tailles = p.Taille ? `<div class="tailles"><strong>Tailles :</strong> ${p.Taille}</div>` : '';
 
-// Si image est de type =IMAGE("https://drive.google.com/uc?export=view&id=xxxxx"), on l’extrait
-// Gère =IMAGE("https://...") en CSV
-const formulaMatch = image.match(/=IMAGE\("([^"]+)"\)/i);
-if (formulaMatch) {
-  image = formulaMatch[1]; // extrait l’URL depuis la formule
-}
+        let image = (p["Image URL"] || "").trim();
 
-// Si image contient id=... on convertit vers lh3.googleusercontent.com
-const idMatch = image.match(/id=([a-zA-Z0-9_-]+)/);
-if (idMatch) {
-  const fileId = idMatch[1];
-  image = `https://lh3.googleusercontent.com/d/${fileId}`;
-}
+        // ✅ Cas 1 : image est une formule =IMAGE("...")
+        const matchImageFunction = image.match(/^=IMAGE\(["']([^"']+)["']\)/i);
+        if (matchImageFunction) {
+          image = matchImageFunction[1];
+        }
 
+        // ✅ Cas 2 : lien Google Drive avec id=...
+        const matchDriveId = image.match(/id=([a-zA-Z0-9_-]{10,})/);
+        if (matchDriveId) {
+          const fileId = matchDriveId[1];
+          image = `https://lh3.googleusercontent.com/d/${fileId}`;
+        }
 
+        // ✅ Si aucun lien valide
+        if (!image || !image.startsWith("http")) {
+          image = `https://placehold.co/120x120?text=${encodeURIComponent(nom)}`;
+        }
 
-          if (!image || !image.startsWith("http")) {
-            image = `https://placehold.co/120x120?text=${encodeURIComponent(nom)}`;
-          }
-
-          console.log(`🖼️ Image URL pour "${nom}" :`, image);
-
-          const produitHTML = `
-            <div class="produit">
-              <div class="image-box" style="background-image: url('${image}');"></div>
-              <div class="produit-info">
-                <h2>${nom}</h2>
-                <p>${desc}</p>
-                <p><strong>${prix} €</strong></p>
-                ${tailles}
-                <div class="quantite">
-                  Quantité :
-                  <input type="number" id="qte-${id}" value="1" min="1" style="width:60px;" />
-                </div>
-                <button onclick="ajouterProduit('${nom}', '${prix}')">Ajouter au panier</button>
+        const produitHTML = `
+          <div class="produit">
+            <div class="image-box" style="background-image: url('${image}');"></div>
+            <div class="produit-info">
+              <h2>${nom}</h2>
+              <p>${desc}</p>
+              <p><strong>${prix} €</strong></p>
+              ${tailles}
+              <div class="quantite">
+                Quantité :
+                <input type="number" id="qte-${id}" value="1" min="1" style="width:60px;" />
               </div>
+              <button onclick="ajouterProduit('${nom}', '${prix}')">Ajouter au panier</button>
             </div>
-          `;
-          catalogue.insertAdjacentHTML('beforeend', produitHTML);
-        });
+          </div>
+        `;
+        catalogue.insertAdjacentHTML('beforeend', produitHTML);
       });
-  </script>
+    });
+</script>
+
 </body>
 </html>
