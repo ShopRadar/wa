@@ -46,11 +46,15 @@
       z-index: 9999; flex-direction: column;
     }
 
-    #lightbox-header {
-      position: absolute; top: 0; left: 0; right: 0;
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 10px 20px; z-index: 10;
-    }
+<div id="lightbox-header">
+  <button onclick="fermerLightbox()">←</button>
+  <div id="quantite-controls" style="display: flex; align-items: center; gap: 10px;">
+    <button onclick="modifierQuantiteActuel(-1)" style="color: white; font-size: 20px; background: none; border: none;">−</button>
+    <span id="quantite-affichee" style="color: white; font-size: 18px;">1</span>
+    <button onclick="modifierQuantiteActuel(1)" style="color: white; font-size: 20px; background: none; border: none;">+</button>
+  </div>
+</div>
+
 
     #lightbox-header button,
     #lightbox-header .add-btn {
@@ -175,7 +179,7 @@
 <div id="barre-panier" style="display: none;">
   <div style="display: flex; align-items: center; gap: 10px;">
     <span id="panier-info">0 article - 0.00€</span>
-    <button class="icon-btn" onclick="afficherDetailsPanier()">👁️‍🗨️</button>
+    <button class="icon-btn" onclick="afficherDetailsPanier()">🧾</button>
   </div>
   <button onclick="commander()">Envoyer</button>
 </div>
@@ -207,6 +211,7 @@
   const panier = [];
   let produits = [];
   let currentIndex = 0;
+let quantiteSelectionnee = 1;
 
   window.addEventListener('load', () => {
     document.getElementById('splash').style.display = 'none';
@@ -219,10 +224,16 @@
     afficherPanier();
   }
 
-  function ajouterProduitActuel() {
-    const p = produits[currentIndex];
-    if (p) ajouterProduit(p.nom, p.prix);
+function ajouterProduitActuel() {
+  const p = produits[currentIndex];
+  if (p) {
+    const exist = panier.find(item => item.nom === p.nom);
+    if (exist) exist.quantite += quantiteSelectionnee;
+    else panier.push({ nom: p.nom, prix: p.prix, quantite: quantiteSelectionnee });
+    afficherPanier();
   }
+}
+
 
   function afficherPanier() {
     const total = panier.reduce((acc, p) => acc + parseFloat(p.prix) * p.quantite, 0);
@@ -261,6 +272,9 @@
       caption.innerText = `${p.nom} — ${p.taille || ''} — ${p.prix} €`;
       currentIndex = i;
     };
+    quantiteSelectionnee = 1;
+document.getElementById('quantite-affichee').innerText = quantiteSelectionnee;
+
     setCaption(index);
     lightboxContent.addEventListener('scroll', () => {
       const newIndex = Math.round(lightboxContent.scrollLeft / window.innerWidth);
@@ -360,6 +374,15 @@
       deferredPrompt.prompt();
     });
   });
+
+  function modifierQuantiteActuel(delta) {
+  quantiteSelectionnee += delta;
+  if (quantiteSelectionnee < 1) quantiteSelectionnee = 1;
+  document.getElementById('quantite-affichee').innerText = quantiteSelectionnee;
+}
+
 </script>
+
+  
 </body>
 </html>
