@@ -11,6 +11,25 @@
 
     .produit { position: relative; margin-bottom: 10px; }
     .produit img { width: 100vw; height: auto; display: block; }
+    .badge {
+  position: absolute;
+  bottom: 10px;
+  background: white;
+  color: black;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.badge.prix {
+  left: 10px;
+}
+
+.badge.taille {
+  left: 10px;
+  margin-top: 26px;
+}
+
     .add-btn {
       position: absolute; top: 10px; right: 10px;
       background: #25D366; color: #fff;
@@ -340,11 +359,14 @@
 
       const catalogue = document.getElementById('catalogue');
       produits.forEach((p, index) => {
-        const bloc = `
-          <div class="produit">
-            <img src="${p.image}" alt="${p.nom}" onclick="ouvrirLightbox(${index})">
-            <div class="add-btn" onclick="ajouterProduit('${p.nom}', '${p.prix}')">+</div>
-          </div>`;
+const bloc = `
+  <div class="produit">
+    <img src="${p.image}" alt="${p.nom}" onclick="ouvrirLightbox(${index})">
+    <div class="add-btn" onclick="ajouterProduit('${p.nom}', '${p.prix}')">+</div>
+    <div class="badge prix">${p.prix} €</div>
+    <div class="badge taille">${p.taille}</div>
+  </div>`;
+
         catalogue.insertAdjacentHTML('beforeend', bloc);
       });
     });
