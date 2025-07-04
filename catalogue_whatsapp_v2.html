@@ -78,6 +78,29 @@
       color: white; font-size: 16px; text-align: center;
       padding: 10px; background: rgba(0, 0, 0, 0.7); width: 100%;
     }
+
+
+
+    #install-container {
+  position: fixed;
+  bottom: 70px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  z-index: 999;
+}
+
+#install-button {
+  padding: 12px 20px;
+  font-size: 16px;
+  background: #25D366;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
   </style>
 </head>
 <body>
@@ -191,6 +214,38 @@ function commander() {
       });
     });
 </script>
+
+
+
+  <!-- Bouton d'installation PWA -->
+<div id="install-container" style="display: none;">
+  <button id="install-button">📲 Améliorer l'affichage</button>
+</div>
+
+<script>
+  let deferredPrompt;
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const container = document.getElementById('install-container');
+    container.style.display = 'block';
+
+    document.getElementById('install-button').addEventListener('click', () => {
+      container.style.display = 'none';
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(choiceResult => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('✅ Installation acceptée');
+        } else {
+          console.log('❌ Installation refusée');
+        }
+        deferredPrompt = null;
+      });
+    });
+  });
+</script>
+
 
 </body>
 </html>
