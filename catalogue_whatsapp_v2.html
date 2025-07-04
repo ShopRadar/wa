@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boutique WhatsApp V2</title>
+
+  <!-- PWA Manifest & Service Worker -->
+  <link rel="manifest" href="/wa/manifest.json">
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/wa/sw.js');
+    }
+  </script>
+
+  <style>
+    body { margin: 0; font-family: sans-serif; background: #fff; }
+    .produit { position: relative; margin-bottom: 10px; }
+    .produit img {
+      width: 100vw; height: auto; display: block;
+    }
+    .add-btn {
+      position: absolute; top: 10px; right: 10px;
+      background: #25D366; color: #fff;
+      border-radius: 50%; width: 40px; height: 40px;
+      display: flex; justify-content: center; align-items: center;
+      font-size: 24px; cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    #barre-panier {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #fff; border-top: 1px solid #ccc;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 15px; font-size: 16px;
+      box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    }
+    #barre-panier button {
+      background: #25D366; color: white; border: none;
+      padding: 10px 16px; border-radius: 6px; cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div id="catalogue"></div>
+<div id="barre-panier" style="display: none;">
+  <div id="panier-info">0 article - 0.00€</div>
+  <button onclick="commander()">Commander</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script>
+  const panier = [];
+
+  function idSafe(text) {
+    return (text || '').replace(/[^a-zA-Z0-9]/g, '_');
+  }
+
+  function ajouterProduit(nom, prix) {
+    const exist = panier.find(p => p.nom === nom);
+    if (exist) {
+      exist.quantite++;
+    } else {
+      panier.push({ nom, prix, quantite: 1 });
+    }
+    afficherPanier();
+  }
+
+  function afficherPanier() {
+    const total = panier.reduce((acc, p) => acc + parseFloat(p.prix) * p.quantite, 0);
+    const quantiteTotale = panier.reduce((acc, p) => acc + p.quantite, 0);
+    document.getElementById('panier-info').innerText = `${quantiteTotale} article${quantiteTotale > 1 ? 's' : ''} - ${total.toFixed(2)}€`;
+    document.getElementById('barre-panier').style.display = total > 0 ? 'flex' : 'none';
+  }
+
+  function commander() {
+    let message = 'Bonjour, je souhaite commander :\n\n';
+    panier.forEach(p => {
+      message += `- ${p.quantite} × ${p.nom} (${p.prix} €)\n`;
+    });
+    const lien = 'https://wa.me/33767580723?text=' + encodeURIComponent(message);
+    window.open(lien, '_blank');
+  }
+
+  fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vQ907oIlbF-e-80I-pn89CWFJ4R3er2Q9ycZt5j63oaraExSQvdOznc33F_20mh1z_oMKpCSWDw8MtO/pub?gid=0&single=true&output=csv")
+    .then(r => r.text())
+    .then(csvText => {
+      const parsed = Papa.parse(csvText.trim(), { header: true });
+      const produits = parsed.data.filter(p => (p.Visible || '').toUpperCase().trim() === 'TRUE');
+
+      const catalogue = document.getElementById('catalogue');
+      produits.forEach((p, index) => {
+        const nom = p["Nom Produit"]?.trim() || `Produit ${index}`;
+        const prix = p["Prix "]?.trim().replace('€', '').replace(',', '.') || "0";
+        let image = (p["Image URL"] || "").trim();
+
+        const matchImage = image.match(/^=IMAGE\(["'](.+?)["']\)/);
+        if (matchImage) image = matchImage[1];
+        const matchDrive = image.match(/id=([a-zA-Z0-9_-]{10,})/);
+        if (matchDrive) image = `https://lh3.googleusercontent.com/d/${matchDrive[1]}`;
+
+        if (!image || !image.startsWith("http")) {
+          image = `https://placehold.co/600x400?text=${encodeURIComponent(nom)}`;
+        }
+
+        const bloc = `
+          <div class="produit">
+            <img src="${image}" alt="${nom}">
+            <div class="add-btn" onclick="ajouterProduit('${nom}', '${prix}')">+</div>
+          </div>`;
+        catalogue.insertAdjacentHTML('beforeend', bloc);
+      });
+    });
+</script>
+</body>
+</html>
