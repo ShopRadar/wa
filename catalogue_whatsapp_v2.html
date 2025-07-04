@@ -18,13 +18,22 @@
       font-size: 24px; cursor: pointer;
       box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     }
-    #barre-panier {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      background: #fff; border-top: 1px solid #ccc;
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 10px 15px; font-size: 16px;
-      box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
-    }
+#barre-panier {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-top: 1px solid #ccc;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  font-size: 16px;
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+  z-index: 1000; /* plus élevé que le bouton install */
+}
+
     #barre-panier button {
       background: #25D366; color: white; border: none;
       padding: 10px 16px; border-radius: 6px; cursor: pointer;
@@ -112,14 +121,18 @@
     document.getElementById('barre-panier').style.display = total > 0 ? 'flex' : 'none';
   }
 
-  function commander() {
-    let message = 'Bonjour, je souhaite commander :\n\n';
-    panier.forEach(p => {
-      message += `- ${p.quantite} × ${p.nom} (${p.prix} €)\n`;
-    });
-    const lien = 'https://wa.me/33767580723?text=' + encodeURIComponent(message);
-    window.open(lien, '_blank');
-  }
+function commander() {
+  let message = 'Bonjour, je souhaite commander :\n\n';
+  let total = 0;
+  panier.forEach(p => {
+    message += `- ${p.quantite} × ${p.nom} (${p.prix} €)\n`;
+    total += parseFloat(p.prix) * p.quantite;
+  });
+  message += `\nTotal : ${total.toFixed(2)} €`;
+  const lien = 'https://wa.me/33767580723?text=' + encodeURIComponent(message);
+  window.open(lien, '_blank');
+}
+
 
   function ouvrirLightbox(index) {
     const lightbox = document.getElementById('lightbox');
