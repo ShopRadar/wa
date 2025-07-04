@@ -282,12 +282,7 @@
   <button id="install-button">📲 Améliorer l'affichage</button>
 </div>
 
-  <!-- Notification toast -->
-<div id="toast" style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
- background: #25D366; color: white; padding: 12px 20px; border-radius: 6px; display: none;
- box-shadow: 0 2px 6px rgba(0,0,0,0.3); z-index: 1002; font-size: 15px;">
-  ✅ Affichage bien configuré, bon shopping !
-</div>
+
   
 <script>
   let deferredPrompt;
@@ -304,19 +299,12 @@
 
       deferredPrompt.userChoice.then(choiceResult => {
         if (choiceResult.outcome === 'accepted') {
-          console.log('✅ PWA installée avec succès');
+          console.log('✅ Installation acceptée');
 
-          // Affiche la notification
-          const toast = document.getElementById('toast');
-          toast.style.display = 'block';
-
-          // Disparaît après 3 secondes
+          // ➤ Attendre 2 secondes avant d'afficher le popup
           setTimeout(() => {
-            toast.style.display = 'none';
-          }, 3000);
-
-          // Retour arrière (ferme l’écran si ouvert en mode modal)
-          if (window.history.length > 1) history.back();
+            document.getElementById('install-popup').style.display = 'flex';
+          }, 2000);
         } else {
           console.log('❌ Installation refusée');
         }
@@ -324,7 +312,44 @@
       });
     });
   });
+
+  function fermerPopupInstall() {
+    document.getElementById('install-popup').style.display = 'none';
+    if (window.history.length > 1) {
+      history.back(); // Simule un bouton précédent
+    }
+  }
 </script>
+
+
+  <!-- Popup d'installation réussie -->
+<div id="install-popup" style="
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  z-index: 1002;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-align: center;
+  padding: 20px;
+">
+  <div style="font-size: 20px; margin-bottom: 20px;">
+    ✅ Affichage bien configuré<br>Bon shopping !
+  </div>
+  <button onclick="fermerPopupInstall()" style="
+    padding: 10px 20px;
+    font-size: 16px;
+    background: #25D366;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  ">OK</button>
+</div>
 
 
 </body>
