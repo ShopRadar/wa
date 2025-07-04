@@ -41,13 +41,24 @@
     #lightbox-content {
       flex: 1; overflow-x: scroll; display: flex; scroll-snap-type: x mandatory;
     }
-    .slide {
-      min-width: 100vw; height: 100%; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; scroll-snap-align: center; position: relative;
-    }
-    .slide img {
-      max-width: 100vw; max-height: 80vh; object-fit: contain;
-    }
+.slide {
+  min-width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: center;
+  position: relative;
+  background: black;
+}
+
+.slide img {
+  width: 100vw;         /* ➤ toute la largeur de l'écran */
+  height: auto;
+  max-height: 80vh;     /* ➤ max en hauteur */
+  object-fit: contain;
+}
     .slide .add-btn {
       position: absolute; top: 15px; right: 15px; background: #25D366;
       width: 40px; height: 40px; border-radius: 50%; color: white;
