@@ -142,6 +142,8 @@
     const quantiteTotale = panier.reduce((acc, p) => acc + p.quantite, 0);
     document.getElementById('panier-info').innerText = `${quantiteTotale} article${quantiteTotale > 1 ? 's' : ''} - ${total.toFixed(2)}€`;
     document.getElementById('barre-panier').style.display = total > 0 ? 'flex' : 'none';
+    document.getElementById('barre-panier').style.display = 'flex';
+
   }
 
 function commander() {
