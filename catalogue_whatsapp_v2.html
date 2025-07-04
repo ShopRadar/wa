@@ -293,17 +293,30 @@
   let deferredPrompt;
 
   window.addEventListener('beforeinstallprompt', (e) => {
+    console.log("📲 beforeinstallprompt déclenché");
     e.preventDefault();
     deferredPrompt = e;
-    const container = document.getElementById('install-container');
-    container.style.display = 'block';
+    document.getElementById('install-container').style.display = 'block';
 
     document.getElementById('install-button').addEventListener('click', () => {
-      container.style.display = 'none';
+      document.getElementById('install-container').style.display = 'none';
       deferredPrompt.prompt();
+
       deferredPrompt.userChoice.then(choiceResult => {
         if (choiceResult.outcome === 'accepted') {
-          console.log('✅ Installation acceptée');
+          console.log('✅ PWA installée avec succès');
+
+          // Affiche la notification
+          const toast = document.getElementById('toast');
+          toast.style.display = 'block';
+
+          // Disparaît après 3 secondes
+          setTimeout(() => {
+            toast.style.display = 'none';
+          }, 3000);
+
+          // Retour arrière (ferme l’écran si ouvert en mode modal)
+          if (window.history.length > 1) history.back();
         } else {
           console.log('❌ Installation refusée');
         }
