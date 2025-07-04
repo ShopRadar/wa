@@ -11,15 +11,23 @@
 
     .produit { position: relative; margin-bottom: 10px; }
     .produit img { width: 100vw; height: auto; display: block; }
-    .badge {
+.badges {
   position: absolute;
   bottom: 10px;
+  left: 10px;
+  display: flex;
+  gap: 6px;
+}
+
+.badge {
   background: white;
   color: black;
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 14px;
+  white-space: nowrap;
 }
+
 
 .badge.prix {
   left: 10px;
@@ -363,9 +371,12 @@ const bloc = `
   <div class="produit">
     <img src="${p.image}" alt="${p.nom}" onclick="ouvrirLightbox(${index})">
     <div class="add-btn" onclick="ajouterProduit('${p.nom}', '${p.prix}')">+</div>
-    <div class="badge prix">${p.prix} €</div>
-    <div class="badge taille">${p.taille}</div>
+    <div class="badges">
+      <div class="badge">${p.prix} €</div>
+      <div class="badge">${p.taille}</div>
+    </div>
   </div>`;
+
 
         catalogue.insertAdjacentHTML('beforeend', bloc);
       });
