@@ -17,6 +17,7 @@
       width: 100vw;
       height: auto;
       display: block;
+      cursor: pointer;
     }
     .add-btn {
       position: absolute;
@@ -35,21 +36,20 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     }
 
-    .badge {
+    .badges {
       position: absolute;
       bottom: 10px;
       left: 10px;
+      display: flex;
+      gap: 6px;
+    }
+
+    .badge {
       background: white;
       color: black;
       padding: 4px 8px;
       border-radius: 4px;
       font-size: 14px;
-    }
-
-    .badge.taille {
-      top: 10px;
-      left: 10px;
-      bottom: auto;
     }
 
     #barre-panier {
@@ -74,6 +74,13 @@
       border: none;
       padding: 10px 16px;
       border-radius: 6px;
+      cursor: pointer;
+    }
+
+    #barre-panier .icon-btn {
+      background: none;
+      border: none;
+      font-size: 22px;
       cursor: pointer;
     }
 
@@ -111,9 +118,11 @@
   <div id="splash"><div class="loader"></div></div>
 
   <div id="catalogue"></div>
+
   <div id="barre-panier" style="display: none;">
     <span id="panier-info">0 article - 0.00€</span>
-    <button onclick="commander()">Commander</button>
+    <button class="icon-btn" onclick="alert('Aperçu du panier à venir')">👁️‍🗨️</button>
+    <button onclick="commander()">Envoyer</button>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
@@ -147,6 +156,11 @@
       window.open(lien, '_blank');
     }
 
+    function ouvrirLightbox(index) {
+      // à implémenter plus tard
+      console.log('Ouverture plein écran de', index);
+    }
+
     window.addEventListener('load', () => {
       document.getElementById('splash').style.display = 'none';
     });
@@ -173,10 +187,12 @@
         produits.forEach((p, index) => {
           const bloc = `
             <div class="produit">
-              <img src="${p.image}" alt="${p.nom}" onclick="ajouterProduit('${p.nom}', '${p.prix}')">
+              <img src="${p.image}" alt="${p.nom}" onclick="ouvrirLightbox(${index})">
               <div class="add-btn" onclick="ajouterProduit('${p.nom}', '${p.prix}')">+</div>
-              <div class="badge taille">${p.taille}</div>
-              <div class="badge">${p.prix} €</div>
+              <div class="badges">
+                <div class="badge">${p.taille}</div>
+                <div class="badge">${p.prix} €</div>
+              </div>
             </div>`;
           catalogue.insertAdjacentHTML('beforeend', bloc);
         });
