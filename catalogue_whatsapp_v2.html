@@ -1,20 +1,18 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <link rel="manifest" href="/wa/manifest.json">
-  <meta name="theme-color" content="#25D366">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Boutique WhatsApp V2</title>
 
-  <!-- SwiperJS for lightbox scrolling -->
+  <!-- SwiperJS CSS pour slideshow -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-
   <style>
     body { margin: 0; font-family: sans-serif; background: #fff; }
     .produit { position: relative; margin-bottom: 10px; }
-    .produit img { width: 100vw; height: auto; display: block; }
+    .produit img {
+      width: 100vw; height: auto; display: block;
+    }
     .add-btn {
       position: absolute; top: 10px; right: 10px;
       background: #25D366; color: #fff;
@@ -34,52 +32,59 @@
       background: #25D366; color: white; border: none;
       padding: 10px 16px; border-radius: 6px; cursor: pointer;
     }
+
+    /* Lightbox swiper */
     #lightbox {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background: #000;
-      z-index: 9999;
-      display: none;
-      flex-direction: column;
+      display: none; position: fixed; top: 0; left: 0;
+      width: 100vw; height: 100vh; background: #000;
+      z-index: 9999; flex-direction: column;
     }
-    .swiper-container { flex: 1; width: 100%; }
+    .swiper-slide {
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      height: 100vh; position: relative;
+    }
     .swiper-slide img {
-      width: 100vw; height: auto;
-      object-fit: contain;
-      background: black;
+      max-width: 100vw; max-height: 70vh; object-fit: contain;
     }
-    .lightbox-details {
-      padding: 12px;
-      color: white;
-      font-size: 16px;
-      background: rgba(0,0,0,0.7);
-      text-align: center;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    .info {
+      position: absolute; bottom: 0; color: #fff;
+      background: rgba(0,0,0,0.7); padding: 10px; width: 100%; text-align: center;
     }
+    .close-btn, .plus-btn {
+      position: absolute; top: 10px; background: #25D366;
+      color: #fff; padding: 10px; border-radius: 6px;
+    }
+    .close-btn { left: 10px; }
+    .plus-btn { right: 10px; }
   </style>
 </head>
 <body>
+
 <div id="catalogue"></div>
 <div id="barre-panier" style="display: none;">
   <div id="panier-info">0 article - 0.00€</div>
   <button onclick="commander()">Commander</button>
 </div>
 
+<!-- Lightbox -->
+<div id="lightbox">
+  <div class="swiper">
+    <div class="swiper-wrapper" id="swiper-wrapper"></div>
+  </div>
+  <div class="close-btn" onclick="fermerLightbox()">←</div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
   const panier = [];
-  const produitsData = [];
+  let swiper;
 
   function ajouterProduit(nom, prix) {
     const exist = panier.find(p => p.nom === nom);
-    if (exist) {
-      exist.quantite++;
-    } else {
-      panier.push({ nom, prix, quantite: 1 });
-    }
+    if (exist) exist.quantite++;
+    else panier.push({ nom, prix, quantite: 1 });
     afficherPanier();
   }
 
@@ -99,12 +104,30 @@
     window.open(lien, '_blank');
   }
 
+  function ouvrirLightbox(index) {
+    document.getElementById('lightbox').style.display = 'flex';
+    swiper.slideTo(index, 0);
+    history.pushState({ lightbox: true }, '');
+  }
+
+  function fermerLightbox() {
+    document.getElementById('lightbox').style.display = 'none';
+    history.back();
+  }
+
+  window.addEventListener('popstate', (e) => {
+    if (!e.state || !e.state.lightbox) {
+      fermerLightbox();
+    }
+  });
+
   fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vQ907oIlbF-e-80I-pn89CWFJ4R3er2Q9ycZt5j63oaraExSQvdOznc33F_20mh1z_oMKpCSWDw8MtO/pub?gid=0&single=true&output=csv")
     .then(r => r.text())
     .then(csvText => {
       const parsed = Papa.parse(csvText.trim(), { header: true });
       const produits = parsed.data.filter(p => (p.Visible || '').toUpperCase().trim() === 'TRUE');
       const catalogue = document.getElementById('catalogue');
+      const swiperWrapper = document.getElementById('swiper-wrapper');
 
       produits.forEach((p, index) => {
         const nom = p["Nom Produit"]?.trim() || `Produit ${index}`;
@@ -114,90 +137,30 @@
         if (matchImage) image = matchImage[1];
         const matchDrive = image.match(/id=([a-zA-Z0-9_-]{10,})/);
         if (matchDrive) image = `https://lh3.googleusercontent.com/d/${matchDrive[1]}`;
-        if (!image || !image.startsWith("http")) {
-          image = `https://placehold.co/600x400?text=${encodeURIComponent(nom)}`;
-        }
+        if (!image || !image.startsWith("http")) image = `https://placehold.co/600x400?text=${encodeURIComponent(nom)}`;
 
-        produitsData.push({ nom, prix, image, taille: p.Taille });
-        const bloc = `
+        // Bloc principal
+        catalogue.insertAdjacentHTML('beforeend', `
           <div class="produit">
-            <img src="${image}" alt="${nom}" onclick="ouvrirLightbox(${produitsData.length - 1})">
+            <img src="${image}" alt="${nom}" onclick="ouvrirLightbox(${index})">
             <div class="add-btn" onclick="ajouterProduit('${nom}', '${prix}')">+</div>
-          </div>`;
-        catalogue.insertAdjacentHTML('beforeend', bloc);
+          </div>
+        `);
+
+        // Slide pour lightbox
+        swiperWrapper.insertAdjacentHTML('beforeend', `
+          <div class="swiper-slide">
+            <img src="${image}" alt="${nom}" />
+            <div class="plus-btn" onclick="ajouterProduit('${nom}', '${prix}')">+</div>
+            <div class="info">${nom} | ${p.Taille || ''} | ${prix}€</div>
+          </div>
+        `);
+      });
+
+      swiper = new Swiper('.swiper', {
+        loop: false
       });
     });
-
-  let swiperInstance;
-
-  function ouvrirLightbox(index) {
-    const wrapper = document.getElementById('swiper-wrapper');
-    wrapper.innerHTML = '';
-    produitsData.forEach((prod) => {
-      const slide = document.createElement('div');
-      slide.className = 'swiper-slide';
-      slide.innerHTML = `<img src="${prod.image}" alt="${prod.nom}" />`;
-      wrapper.appendChild(slide);
-    });
-
-    document.getElementById('lightbox-details').innerText = `${produitsData[index].nom} | ${produitsData[index].taille || ''} | ${produitsData[index].prix} €`;
-
-    if (swiperInstance) swiperInstance.destroy(true, true);
-    swiperInstance = new Swiper('.swiper-container', {
-      initialSlide: index,
-      on: {
-        slideChange: () => {
-          const i = swiperInstance.realIndex;
-          document.getElementById('lightbox-details').innerText = `${produitsData[i].nom} | ${produitsData[i].taille || ''} | ${produitsData[i].prix} €`;
-        }
-      }
-    });
-    document.getElementById('lightbox').style.display = 'flex';
-    history.pushState({ lightbox: true }, '');
-  }
-
-  window.addEventListener('popstate', (e) => {
-    if (e.state && e.state.lightbox) {
-      document.getElementById('lightbox').style.display = 'none';
-    }
-  });
-</script>
-
-<div id="lightbox">
-  <div class="swiper-container">
-    <div class="swiper-wrapper" id="swiper-wrapper"></div>
-  </div>
-  <div id="lightbox-details" class="lightbox-details"></div>
-</div>
-
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js')
-      .then(() => console.log("✅ Service worker enregistré"))
-      .catch(e => console.error("❌ Erreur service worker", e));
-  }
-</script>
-
-<div id="install-container" style="text-align: center; margin: 20px; display: none;">
-  <button id="install-button" style="padding: 10px 20px; font-size: 16px;">
-    📲 Améliorer l'affichage
-  </button>
-</div>
-<script>
-  let deferredPrompt;
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    const container = document.getElementById('install-container');
-    container.style.display = 'block';
-    document.getElementById('install-button').addEventListener('click', () => {
-      container.style.display = 'none';
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then(choiceResult => {
-        deferredPrompt = null;
-      });
-    });
-  });
 </script>
 </body>
 </html>
