@@ -291,7 +291,6 @@
     e.preventDefault();
     deferredPrompt = e;
 
-    // Affiche le bouton "Améliorer l'affichage"
     const container = document.getElementById('install-container');
     if (container) container.style.display = 'block';
 
@@ -299,62 +298,35 @@
       container.style.display = 'none';
       deferredPrompt.prompt();
 
-      deferredPrompt.userChoice.then(choiceResult => {
-        if (choiceResult.outcome === 'accepted') {
-          console.log('✅ Installation acceptée');
-
-          // ✅ Sauvegarde que le popup a été affiché
-          localStorage.setItem('installSuccessShown', 'true');
-
-          setTimeout(() => {
-            document.getElementById('install-popup').style.display = 'flex';
-          }, 2000);
-        }
-        deferredPrompt = null;
-      });
+      // ✅ Popup explicatif après 5 secondes
+      setTimeout(() => {
+        document.getElementById('popup-info-install').style.display = 'flex';
+      }, 5000);
     });
-  });
-
-  function fermerPopupInstall() {
-    document.getElementById('install-popup').style.display = 'none';
-
-    // Redirection ou retour en arrière
-    if (window.history.length > 1) {
-      window.history.back();
-    } else {
-      window.location.href = '/wa/catalogue_whatsapp_v2.html';
-    }
-  }
-
-  // Empêche affichage du popup si déjà vu
-  window.addEventListener('load', () => {
-    if (localStorage.getItem('installSuccessShown') === 'true') {
-      document.getElementById('install-popup').style.display = 'none';
-    }
   });
 </script>
 
 
 
-  <!-- Popup d'installation réussie -->
-<div id="install-popup" style="
+
+<div id="popup-info-install" style="
   display: none;
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.85);
   z-index: 9999;
+  color: white;
+  text-align: center;
+  padding: 40px 20px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  color: white;
-  text-align: center;
-  padding: 20px;
 ">
-  <div style="font-size: 20px; margin-bottom: 20px;">
-    ✅ Affichage bien configuré<br>Bon shopping !
+  <div style="font-size: 18px; margin-bottom: 20px;">
+    📲 Une fois l'installation terminée,<br>vous pouvez fermer cette fenêtre et<br>cliquer sur le lien à nouveau.
   </div>
-  <button onclick="fermerPopupInstall()" style="
+  <button onclick="document.getElementById('popup-info-install').style.display='none'" style="
     padding: 10px 20px;
     font-size: 16px;
     background: #25D366;
@@ -364,6 +336,7 @@
     cursor: pointer;
   ">OK</button>
 </div>
+
 
 
 </body>
