@@ -288,25 +288,27 @@
   let deferredPrompt;
 
   window.addEventListener('beforeinstallprompt', (e) => {
-    console.log("📲 beforeinstallprompt déclenché");
     e.preventDefault();
     deferredPrompt = e;
-    document.getElementById('install-container').style.display = 'block';
+
+    // Affiche le bouton "Améliorer l'affichage"
+    const container = document.getElementById('install-container');
+    if (container) container.style.display = 'block';
 
     document.getElementById('install-button').addEventListener('click', () => {
-      document.getElementById('install-container').style.display = 'none';
+      container.style.display = 'none';
       deferredPrompt.prompt();
 
       deferredPrompt.userChoice.then(choiceResult => {
         if (choiceResult.outcome === 'accepted') {
           console.log('✅ Installation acceptée');
 
-          // ➤ Attendre 2 secondes avant d'afficher le popup
+          // ✅ Sauvegarde que le popup a été affiché
+          localStorage.setItem('installSuccessShown', 'true');
+
           setTimeout(() => {
             document.getElementById('install-popup').style.display = 'flex';
           }, 2000);
-        } else {
-          console.log('❌ Installation refusée');
         }
         deferredPrompt = null;
       });
@@ -315,11 +317,23 @@
 
   function fermerPopupInstall() {
     document.getElementById('install-popup').style.display = 'none';
+
+    // Redirection ou retour en arrière
     if (window.history.length > 1) {
-      history.back(); // Simule un bouton précédent
+      window.history.back();
+    } else {
+      window.location.href = '/wa/catalogue_whatsapp_v2.html';
     }
   }
+
+  // Empêche affichage du popup si déjà vu
+  window.addEventListener('load', () => {
+    if (localStorage.getItem('installSuccessShown') === 'true') {
+      document.getElementById('install-popup').style.display = 'none';
+    }
+  });
 </script>
+
 
 
   <!-- Popup d'installation réussie -->
@@ -327,8 +341,8 @@
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.8);
-  z-index: 1002;
+  background: rgba(0,0,0,0.85);
+  z-index: 9999;
   display: flex;
   flex-direction: column;
   justify-content: center;
