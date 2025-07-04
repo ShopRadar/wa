@@ -11,33 +11,6 @@
 
     .produit { position: relative; margin-bottom: 10px; }
     .produit img { width: 100vw; height: auto; display: block; }
-.badges {
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
-  display: flex;
-  gap: 6px;
-}
-
-.badge {
-  background: white;
-  color: black;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 14px;
-  white-space: nowrap;
-}
-
-
-.badge.prix {
-  left: 10px;
-}
-
-.badge.taille {
-  left: 10px;
-  margin-top: 26px;
-}
-
     .add-btn {
       position: absolute; top: 10px; right: 10px;
       background: #25D366; color: #fff;
@@ -68,56 +41,6 @@
       cursor: pointer;
     }
 
-    #lightbox {
-      display: none; position: fixed; inset: 0; background: #000;
-      z-index: 9999; flex-direction: column;
-    }
-
-    #lightbox-header {
-      position: absolute; top: 0; left: 0; right: 0;
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 10px 20px; z-index: 10;
-    }
-
-    #lightbox-header button,
-    #lightbox-header .add-btn {
-      background: none; border: none; color: white;
-      font-size: 24px; cursor: pointer;
-    }
-
-    #lightbox-content {
-      flex: 1; overflow-x: auto; display: flex;
-      scroll-snap-type: x mandatory; scroll-behavior: smooth;
-    }
-
-    .slide {
-      min-width: 100vw; height: 100vh;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      scroll-snap-align: center; background: black;
-    }
-
-    .slide img {
-      width: 100vw; max-height: 80vh;
-      object-fit: contain; transition: transform 0.3s ease;
-    }
-
-    .slide:active img {
-      transform: scale(0.97);
-    }
-
-    #lightbox-footer {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      background: rgba(0,0,0,0.8);
-      color: white;
-      text-align: center;
-      padding: 10px;
-      font-size: 16px;
-    }
-
-    /* Splash loader */
     #splash {
       position: fixed; top: 0; left: 0;
       width: 100vw; height: 100vh;
@@ -139,9 +62,19 @@
       100% { transform: rotate(360deg); }
     }
 
-    #install-container {
-      position: fixed; bottom: 70px; left: 0; right: 0;
-      text-align: center; z-index: 999;
+    /* Overlay installation */
+    #install-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      color: white;
+      text-align: center;
+      padding: 20px;
     }
 
     #install-button {
@@ -153,46 +86,24 @@
       border-radius: 8px;
       cursor: pointer;
       box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-    }
-
-    /* Popup panier */
-    #popup-panier {
-      display: none;
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.8); z-index: 9999;
-      color: white; padding: 20px; overflow: auto;
-    }
-
-    #popup-panier ul { list-style: none; padding-left: 0; }
-
-    #popup-panier li {
-      display: flex; align-items: center;
-      gap: 10px; margin-bottom: 10px;
-    }
-
-    #popup-panier button {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    #popup-panier .close-btn {
-      background: #25D366;
-      padding: 10px 20px;
-      border-radius: 6px;
       margin-top: 20px;
-      border: none;
-      color: white;
-      cursor: pointer;
     }
 
+    .loader-install {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #25D366;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      display: none;
+      margin-top: 30px;
+    }
   </style>
 </head>
 <body>
 
-<!-- Splash loader -->
+<!-- Splash écran -->
 <div id="splash"><div class="loader"></div></div>
 
 <!-- Catalogue produits -->
@@ -207,33 +118,17 @@
   <button onclick="commander()">Envoyer</button>
 </div>
 
-<!-- Lightbox plein écran -->
-<div id="lightbox">
-  <div id="lightbox-header">
-    <button onclick="fermerLightbox()">←</button>
-    <button class="add-btn" onclick="ajouterProduitActuel()">+</button>
-  </div>
-  <div id="lightbox-content"></div>
-  <div id="lightbox-footer"><span id="caption"></span></div>
-</div>
-
-<!-- Bouton d'installation PWA -->
-<div id="install-container" style="display: none;">
+<!-- Overlay installation PWA -->
+<div id="install-overlay">
+  <p>Pour une meilleure expérience, ajoutez cette application à votre écran d’accueil.</p>
   <button id="install-button">📲 Améliorer l'affichage</button>
-</div>
-
-<!-- Popup contenu panier -->
-<div id="popup-panier">
-  <h2>Mon panier</h2>
-  <div id="contenu-popup-panier"></div>
-  <button class="close-btn" onclick="fermerDetailsPanier()">Fermer</button>
+  <div class="loader-install" id="install-loader"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script>
   const panier = [];
   let produits = [];
-  let currentIndex = 0;
 
   window.addEventListener('load', () => {
     document.getElementById('splash').style.display = 'none';
@@ -244,11 +139,6 @@
     if (exist) exist.quantite++;
     else panier.push({ nom, prix, quantite: 1 });
     afficherPanier();
-  }
-
-  function ajouterProduitActuel() {
-    const p = produits[currentIndex];
-    if (p) ajouterProduit(p.nom, p.prix);
   }
 
   function afficherPanier() {
@@ -271,82 +161,6 @@
     window.open(lien, '_blank');
   }
 
-  function ouvrirLightbox(index) {
-    const lightbox = document.getElementById('lightbox');
-    const lightboxContent = document.getElementById('lightbox-content');
-    const caption = document.getElementById('caption');
-    lightboxContent.innerHTML = '';
-    produits.forEach((p) => {
-      const slide = document.createElement('div');
-      slide.className = 'slide';
-      slide.innerHTML = `<img src="${p.image}" />`;
-      lightboxContent.appendChild(slide);
-    });
-    lightbox.style.display = 'flex';
-    const setCaption = (i) => {
-      const p = produits[i];
-      caption.innerText = `${p.nom} — ${p.taille || ''} — ${p.prix} €`;
-      currentIndex = i;
-    };
-    setCaption(index);
-    lightboxContent.addEventListener('scroll', () => {
-      const newIndex = Math.round(lightboxContent.scrollLeft / window.innerWidth);
-      if (newIndex !== currentIndex) setCaption(newIndex);
-    });
-    setTimeout(() => {
-      lightboxContent.scrollTo({ left: index * window.innerWidth });
-    }, 50);
-  }
-
-  function fermerLightbox() {
-    document.getElementById('lightbox').style.display = 'none';
-  }
-
-  function afficherDetailsPanier() {
-    const contenu = document.getElementById('contenu-popup-panier');
-    if (panier.length === 0) {
-      contenu.innerHTML = '<p>Votre panier est vide.</p>';
-    } else {
-      let html = '<ul>';
-      panier.forEach((p, index) => {
-        const sousTotal = parseFloat(p.prix) * p.quantite;
-        html += `
-          <li>
-            <button onclick="supprimerArticle(${index})">✖</button>
-            <span style="flex:1;">${p.nom}</span>
-            <button onclick="modifierQuantite(${index}, -1)">-</button>
-            <span>${p.quantite}</span>
-            <button onclick="modifierQuantite(${index}, 1)">+</button>
-            <span>${sousTotal.toFixed(2)} €</span>
-          </li>
-        `;
-      });
-      const total = panier.reduce((acc, p) => acc + parseFloat(p.prix) * p.quantite, 0);
-      html += `</ul><p><strong>Total : ${total.toFixed(2)} €</strong></p>`;
-      contenu.innerHTML = html;
-    }
-    document.getElementById('popup-panier').style.display = 'block';
-  }
-
-  function fermerDetailsPanier() {
-    document.getElementById('popup-panier').style.display = 'none';
-  }
-
-  function supprimerArticle(index) {
-    panier.splice(index, 1);
-    afficherPanier();
-    afficherDetailsPanier();
-  }
-
-  function modifierQuantite(index, delta) {
-    panier[index].quantite += delta;
-    if (panier[index].quantite <= 0) {
-      panier.splice(index, 1);
-    }
-    afficherPanier();
-    afficherDetailsPanier();
-  }
-
   fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vQ907oIlbF-e-80I-pn89CWFJ4R3er2Q9ycZt5j63oaraExSQvdOznc33F_20mh1z_oMKpCSWDw8MtO/pub?gid=0&single=true&output=csv")
     .then(r => r.text())
     .then(csvText => {
@@ -367,30 +181,38 @@
 
       const catalogue = document.getElementById('catalogue');
       produits.forEach((p, index) => {
-const bloc = `
-  <div class="produit">
-    <img src="${p.image}" alt="${p.nom}" onclick="ouvrirLightbox(${index})">
-    <div class="add-btn" onclick="ajouterProduit('${p.nom}', '${p.prix}')">+</div>
-    <div class="badges">
-      <div class="badge">${p.prix} €</div>
-      <div class="badge">${p.taille}</div>
-    </div>
-  </div>`;
-
-
+        const bloc = `
+          <div class="produit">
+            <img src="${p.image}" alt="${p.nom}" onclick="ajouterProduit('${p.nom}', '${p.prix}')">
+            <div class="add-btn" onclick="ajouterProduit('${p.nom}', '${p.prix}')">+</div>
+          </div>`;
         catalogue.insertAdjacentHTML('beforeend', bloc);
       });
     });
 
-  // PWA INSTALLATION
+  // INSTALLATION PWA OVERLAY
   let deferredPrompt;
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    document.getElementById('install-container').style.display = 'block';
-    document.getElementById('install-button').addEventListener('click', () => {
-      document.getElementById('install-container').style.display = 'none';
+
+    const overlay = document.getElementById('install-overlay');
+    const installBtn = document.getElementById('install-button');
+    const loader = document.getElementById('install-loader');
+
+    overlay.style.display = 'flex';
+
+    installBtn.addEventListener('click', () => {
+      installBtn.style.display = 'none';
+      loader.style.display = 'block';
+
       deferredPrompt.prompt();
+
+      setTimeout(() => {
+        loader.style.display = 'none';
+        overlay.style.display = 'none';
+        history.back(); // Simule retour
+      }, 5000);
     });
   });
 </script>
