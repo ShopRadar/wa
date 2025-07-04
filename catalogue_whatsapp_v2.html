@@ -4,106 +4,116 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Boutique WhatsApp V2</title>
-  <link rel="manifest" href="/wa/manifest.json" />
   <meta name="theme-color" content="#25D366" />
+  <link rel="manifest" href="/wa/manifest.json" />
   <style>
     body { margin: 0; font-family: sans-serif; background: #fff; }
 
-    .produit {
-      position: relative;
-      margin-bottom: 10px;
-    }
-    .produit img {
-      width: 100vw;
-      height: auto;
-      display: block;
-      cursor: pointer;
-    }
+    .produit { position: relative; margin-bottom: 10px; }
+    .produit img { width: 100vw; height: auto; display: block; }
     .add-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: #25D366;
-      color: #fff;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 24px;
-      cursor: pointer;
+      position: absolute; top: 10px; right: 10px;
+      background: #25D366; color: #fff;
+      border-radius: 50%; width: 40px; height: 40px;
+      display: flex; justify-content: center; align-items: center;
+      font-size: 24px; cursor: pointer;
       box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     }
 
-    .badges {
+    .badge {
       position: absolute;
       bottom: 10px;
       left: 10px;
-      display: flex;
-      gap: 6px;
-    }
-
-    .badge {
       background: white;
       color: black;
       padding: 4px 8px;
       border-radius: 4px;
       font-size: 14px;
+      margin-right: 5px;
+    }
+
+    .badge.taille {
+      left: auto;
+      right: 10px;
     }
 
     #barre-panier {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #fff;
-      border-top: 1px solid #ccc;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 15px;
-      font-size: 16px;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #fff; border-top: 1px solid #ccc;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 15px; font-size: 16px;
       box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
       z-index: 1000;
     }
 
     #barre-panier button {
-      background: #25D366;
-      color: white;
-      border: none;
-      padding: 10px 16px;
-      border-radius: 6px;
-      cursor: pointer;
+      background: #25D366; color: white; border: none;
+      padding: 10px 16px; border-radius: 6px; cursor: pointer;
     }
 
     #barre-panier .icon-btn {
-      background: none;
-      border: none;
-      font-size: 22px;
-      cursor: pointer;
+      background: none; border: none; font-size: 22px; cursor: pointer;
     }
 
-    /* Splash loader */
+    #lightbox {
+      display: none; position: fixed; inset: 0; background: #000;
+      z-index: 9999; flex-direction: column;
+    }
+
+    #lightbox-header {
+      position: absolute; top: 0; left: 0; right: 0;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 20px; z-index: 10;
+    }
+
+    #lightbox-header button,
+    #lightbox-header .add-btn {
+      background: none; border: none; color: white;
+      font-size: 24px; cursor: pointer;
+    }
+
+    #quantite-controls {
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    #lightbox-content {
+      flex: 1; overflow-x: auto; display: flex;
+      scroll-snap-type: x mandatory; scroll-behavior: smooth;
+    }
+
+    .slide {
+      min-width: 100vw; height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      scroll-snap-align: center; background: black;
+    }
+
+    .slide img {
+      width: 100vw; max-height: 80vh;
+      object-fit: contain; transition: transform 0.3s ease;
+    }
+
+    #lightbox-footer {
+      position: absolute;
+      bottom: 0; width: 100%;
+      background: rgba(0,0,0,0.8);
+      color: white; text-align: center;
+      padding: 10px; font-size: 16px;
+    }
+
     #splash {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
+      position: fixed; top: 0; left: 0;
+      width: 100vw; height: 100vh;
       background: #fff;
       z-index: 99999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
     }
 
     .loader {
       border: 6px solid #f3f3f3;
       border-top: 6px solid #25D366;
       border-radius: 50%;
-      width: 50px;
-      height: 50px;
+      width: 50px; height: 50px;
       animation: spin 1s linear infinite;
     }
 
@@ -114,89 +124,138 @@
   </style>
 </head>
 <body>
-  <!-- Splash loader -->
-  <div id="splash"><div class="loader"></div></div>
-
-  <div id="catalogue"></div>
-
-  <div id="barre-panier" style="display: none;">
+<div id="splash"><div class="loader"></div></div>
+<div id="catalogue"></div>
+<div id="barre-panier" style="display: none;">
+  <div style="display: flex; align-items: center; gap: 10px;">
     <span id="panier-info">0 article - 0.00€</span>
-    <button class="icon-btn" onclick="alert('Aperçu du panier à venir')">👁️‍🗨️</button>
-    <button onclick="commander()">Envoyer</button>
+    <button class="icon-btn" onclick="afficherDetailsPanier()">👁️‍🗨️</button>
   </div>
+  <button onclick="commander()">Envoyer</button>
+</div>
 
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <script>
-    const panier = [];
-    let produits = [];
+  <!-- Lightbox -->
+<div id="lightbox">
+  <div id="lightbox-header">
+    <button onclick="fermerLightbox()">←</button>
+    <div id="quantite-controls">
+      <button onclick="modifierQuantiteActuel(-1)">−</button>
+      <span id="quantite-affichee">1</span>
+      <button onclick="modifierQuantiteActuel(1)">+</button>
+    </div>
+    <button onclick="ajouterProduitActuel()">Ajouter</button>
+  </div>
+  <div id="lightbox-content"></div>
+  <div id="lightbox-footer"><span id="caption"></span></div>
+</div>
 
-    function ajouterProduit(nom, prix) {
-      const exist = panier.find(p => p.nom === nom);
-      if (exist) exist.quantite++;
-      else panier.push({ nom, prix, quantite: 1 });
-      afficherPanier();
-    }
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script>
+  const panier = [];
+  let produits = [];
+  let currentIndex = 0;
+  let quantiteSelectionnee = 1;
 
-    function afficherPanier() {
-      const total = panier.reduce((acc, p) => acc + parseFloat(p.prix) * p.quantite, 0);
-      const quantiteTotale = panier.reduce((acc, p) => acc + p.quantite, 0);
-      document.getElementById('panier-info').innerText = `${quantiteTotale} article${quantiteTotale > 1 ? 's' : ''} - ${total.toFixed(2)}€`;
-      document.getElementById('barre-panier').style.display = total > 0 ? 'flex' : 'none';
-    }
+  function ajouterProduit(nom, prix, qte = 1) {
+    const exist = panier.find(p => p.nom === nom);
+    if (exist) exist.quantite += qte;
+    else panier.push({ nom, prix, quantite: qte });
+    afficherPanier();
+  }
 
-    function commander() {
-      let message = 'Bonjour, je souhaite commander :\n\n';
-      let total = 0;
-      panier.forEach(p => {
-        message += `- ${p.quantite} × ${p.nom} (${p.prix} €)\n`;
-        total += parseFloat(p.prix) * p.quantite;
-      });
-      message += `\nTotal : ${total.toFixed(2)} €`;
-      const lien = 'https://wa.me/33767580723?text=' + encodeURIComponent(message);
-      window.open(lien, '_blank');
-    }
+  function ajouterProduitActuel() {
+    const p = produits[currentIndex];
+    if (p) ajouterProduit(p.nom, p.prix, quantiteSelectionnee);
+  }
 
-    function ouvrirLightbox(index) {
-      // à implémenter plus tard
-      console.log('Ouverture plein écran de', index);
-    }
+  function modifierQuantiteActuel(delta) {
+    quantiteSelectionnee += delta;
+    if (quantiteSelectionnee < 1) quantiteSelectionnee = 1;
+    document.getElementById('quantite-affichee').innerText = quantiteSelectionnee;
+  }
 
-    window.addEventListener('load', () => {
-      document.getElementById('splash').style.display = 'none';
+  function afficherPanier() {
+    const total = panier.reduce((acc, p) => acc + parseFloat(p.prix) * p.quantite, 0);
+    const quantiteTotale = panier.reduce((acc, p) => acc + p.quantite, 0);
+    document.getElementById('panier-info').innerText = `${quantiteTotale} article${quantiteTotale > 1 ? 's' : ''} - ${total.toFixed(2)}€`;
+    document.getElementById('barre-panier').style.display = total > 0 ? 'flex' : 'none';
+  }
+
+  function commander() {
+    let message = 'Bonjour, je souhaite commander :\n\n';
+    let total = 0;
+    panier.forEach(p => {
+      message += `- ${p.quantite} × ${p.nom} (${p.prix} €)\n`;
+      total += parseFloat(p.prix) * p.quantite;
     });
+    message += `\nTotal : ${total.toFixed(2)} €`;
+    window.open('https://wa.me/33767580723?text=' + encodeURIComponent(message), '_blank');
+  }
 
-    fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vQ907oIlbF-e-80I-pn89CWFJ4R3er2Q9ycZt5j63oaraExSQvdOznc33F_20mh1z_oMKpCSWDw8MtO/pub?gid=0&single=true&output=csv")
-      .then(r => r.text())
-      .then(csvText => {
-        const parsed = Papa.parse(csvText.trim(), { header: true });
-        produits = parsed.data.filter(p => (p.Visible || '').toUpperCase().trim() === 'TRUE').map((p, index) => {
-          const nom = p["Nom Produit"]?.trim() || `Produit ${index}`;
-          const prix = p["Prix "]?.trim().replace('€', '').replace(',', '.') || "0";
-          let image = (p["Image URL"] || "").trim();
-          const matchImage = image.match(/^=IMAGE\(["'](.+?)["']\)/);
-          if (matchImage) image = matchImage[1];
-          const matchDrive = image.match(/id=([a-zA-Z0-9_-]{10,})/);
-          if (matchDrive) image = `https://lh3.googleusercontent.com/d/${matchDrive[1]}`;
-          if (!image || !image.startsWith("http")) {
-            image = `https://placehold.co/600x400?text=${encodeURIComponent(nom)}`;
-          }
-          return { nom, prix, taille: p.Taille || '', image };
-        });
+  function ouvrirLightbox(index) {
+    const lightbox = document.getElementById('lightbox');
+    const lightboxContent = document.getElementById('lightbox-content');
+    const caption = document.getElementById('caption');
+    lightboxContent.innerHTML = '';
+    produits.forEach(p => {
+      const slide = document.createElement('div');
+      slide.className = 'slide';
+      slide.innerHTML = `<img src="${p.image}" alt="${p.nom}"/>`;
+      lightboxContent.appendChild(slide);
+    });
+    lightbox.style.display = 'flex';
+    currentIndex = index;
+    quantiteSelectionnee = 1;
+    document.getElementById('quantite-affichee').innerText = quantiteSelectionnee;
+    const p = produits[index];
+    caption.innerText = `${p.nom} — ${p.taille || ''} — ${p.prix} €`;
+    setTimeout(() => {
+      lightboxContent.scrollTo({ left: index * window.innerWidth });
+    }, 50);
+  }
 
-        const catalogue = document.getElementById('catalogue');
-        produits.forEach((p, index) => {
-          const bloc = `
-            <div class="produit">
-              <img src="${p.image}" alt="${p.nom}" onclick="ouvrirLightbox(${index})">
-              <div class="add-btn" onclick="ajouterProduit('${p.nom}', '${p.prix}')">+</div>
-              <div class="badges">
-                <div class="badge">${p.taille}</div>
-                <div class="badge">${p.prix} €</div>
-              </div>
-            </div>`;
-          catalogue.insertAdjacentHTML('beforeend', bloc);
-        });
+  function fermerLightbox() {
+    document.getElementById('lightbox').style.display = 'none';
+  }
+
+  function afficherDetailsPanier() {
+    alert(panier.map(p => `${p.quantite} × ${p.nom} (${p.prix} €)`).join('\n'));
+  }
+
+  window.addEventListener('load', () => {
+    document.getElementById('splash').style.display = 'none';
+  });
+
+  fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vQ907oIlbF-e-80I-pn89CWFJ4R3er2Q9ycZt5j63oaraExSQvdOznc33F_20mh1z_oMKpCSWDw8MtO/pub?gid=0&single=true&output=csv")
+    .then(r => r.text())
+    .then(csvText => {
+      const parsed = Papa.parse(csvText.trim(), { header: true });
+      produits = parsed.data.filter(p => (p.Visible || '').toUpperCase().trim() === 'TRUE').map((p, index) => {
+        const nom = p["Nom Produit"]?.trim() || `Produit ${index}`;
+        const prix = p["Prix "]?.trim().replace('€', '').replace(',', '.') || "0";
+        let image = (p["Image URL"] || "").trim();
+        const matchImage = image.match(/^=IMAGE\(["'](.+?)["']\)/);
+        if (matchImage) image = matchImage[1];
+        const matchDrive = image.match(/id=([a-zA-Z0-9_-]{10,})/);
+        if (matchDrive) image = `https://lh3.googleusercontent.com/d/${matchDrive[1]}`;
+        if (!image || !image.startsWith("http")) {
+          image = `https://placehold.co/600x400?text=${encodeURIComponent(nom)}`;
+        }
+        return { nom, prix, taille: p.Taille || '', image };
       });
-  </script>
+
+      const catalogue = document.getElementById('catalogue');
+      produits.forEach((p, index) => {
+        const bloc = `
+          <div class="produit">
+            <img src="${p.image}" alt="${p.nom}" onclick="ouvrirLightbox(${index})">
+            <div class="add-btn" onclick="ajouterProduit('${p.nom}', '${p.prix}')">+</div>
+            <div class="badge">${p.prix} €</div>
+            <div class="badge taille">${p.taille}</div>
+          </div>`;
+        catalogue.insertAdjacentHTML('beforeend', bloc);
+      });
+    });
+</script>
 </body>
 </html>
