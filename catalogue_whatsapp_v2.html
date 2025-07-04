@@ -247,6 +247,41 @@
         catalogue.insertAdjacentHTML('beforeend', bloc);
       });
     });
+
+
+  
 </script>
+
+
+  <script>
+  let deferredPrompt;
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    document.getElementById('install-container').style.display = 'block';
+
+    document.getElementById('install-button').addEventListener('click', () => {
+      document.getElementById('install-container').style.display = 'none';
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(choiceResult => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('✅ Installation acceptée');
+        } else {
+          console.log('❌ Installation refusée');
+        }
+        deferredPrompt = null;
+      });
+    });
+  });
+</script>
+
+
+  <div id="install-container" style="display: none; position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%); z-index: 1001;">
+  <button id="install-button" style="padding: 12px 24px; font-size: 16px; background: #25D366; color: white; border: none; border-radius: 8px; cursor: pointer;">
+    📲 Améliorer l’affichage
+  </button>
+</div>
+
 </body>
 </html>
