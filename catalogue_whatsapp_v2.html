@@ -151,20 +151,13 @@
 <div id="catalogue"></div>
 
 <div id="barre-panier" style="display: none;">
-  <div id="panier-info">0 article - 0.00€</div>
+  <div style="display: flex; align-items: center; gap: 10px;">
+    <span id="panier-info">0 article - 0.00€</span>
+    <button onclick="afficherDetailsPanier()" style="font-size: 20px;">👁️‍🗨️</button>
+  </div>
   <button onclick="commander()">Commander</button>
 </div>
 
-<div id="lightbox">
-  <div id="lightbox-header">
-    <button onclick="fermerLightbox()">←</button>
-    <div class="add-btn" onclick="ajouterProduitActuel()">+</div>
-  </div>
-  <div id="lightbox-content"></div>
-  <div id="lightbox-footer">
-    <div id="caption">Nom — Taille — Prix</div>
-  </div>
-</div>
 
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script>
@@ -303,9 +296,54 @@
   });
 </script>
 
+function afficherDetailsPanier() {
+  const contenu = document.getElementById('contenu-popup-panier');
+  if (panier.length === 0) {
+    contenu.innerHTML = '<p>Votre panier est vide.</p>';
+  } else {
+    let html = '<ul style="list-style:none; padding-left: 0;">';
+    panier.forEach((p, index) => {
+      const sousTotal = parseFloat(p.prix) * p.quantite;
+      html += `
+        <li style="margin-bottom:10px; display:flex; align-items:center; gap:10px;">
+          <button onclick="supprimerArticle(${index})" style="background:none; border:none; color:red; font-weight:bold; font-size:18px; cursor:pointer;">✖</button>
+          <span style="flex:1;">${p.nom}</span>
+          <button onclick="modifierQuantite(${index}, -1)" style="padding: 2px 8px;">-</button>
+          <span>${p.quantite}</span>
+          <button onclick="modifierQuantite(${index}, 1)" style="padding: 2px 8px;">+</button>
+          <span>${sousTotal.toFixed(2)} €</span>
+        </li>
+      `;
+    });
+    const total = panier.reduce((acc, p) => acc + parseFloat(p.prix) * p.quantite, 0);
+    html += `</ul><p><strong>Total : ${total.toFixed(2)} €</strong></p>`;
+    contenu.innerHTML = html;
+  }
+  document.getElementById('popup-panier').style.display = 'block';
+}
+
+function supprimerArticle(index) {
+  panier.splice(index, 1);
+  afficherPanier();
+  afficherDetailsPanier();
+}
+
+function modifierQuantite(index, delta) {
+  panier[index].quantite += delta;
+  if (panier[index].quantite <= 0) {
+    panier.splice(index, 1);
+  }
+  afficherPanier();
+  afficherDetailsPanier();
+}
 
 
 
+<div id="popup-panier" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.8); z-index:9999; color:white; padding:20px; overflow:auto;">
+  <h2>Détail du panier</h2>
+  <div id="contenu-popup-panier" style="margin-bottom: 20px;"></div>
+  <button onclick="fermerDetailsPanier()" style="background:#25D366; color:white; border:none; padding:10px 20px; border-radius:6px;">Fermer</button>
+</div>
 
 
 
