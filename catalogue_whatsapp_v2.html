@@ -124,5 +124,40 @@
   }
 </script>
 
+
+  <div id="install-container" style="text-align: center; margin: 20px; display: none;">
+  <button id="install-button" style="padding: 10px 20px; font-size: 16px;">
+    📲 Installer cette app
+  </button>
+</div>
+
+  <script>
+  let deferredPrompt;
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    console.log('📲 beforeinstallprompt déclenché');
+    e.preventDefault(); // Empêche Chrome d'afficher le prompt automatiquement
+    deferredPrompt = e;
+
+    // Affiche le bouton personnalisé
+    const container = document.getElementById('install-container');
+    container.style.display = 'block';
+
+    document.getElementById('install-button').addEventListener('click', () => {
+      container.style.display = 'none'; // Masque le bouton après clic
+      deferredPrompt.prompt(); // Affiche le vrai prompt
+
+      deferredPrompt.userChoice.then(choiceResult => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('✅ Installation acceptée');
+        } else {
+          console.log('❌ Installation refusée');
+        }
+        deferredPrompt = null;
+      });
+    });
+  });
+</script>
+
 </body>
 </html>
