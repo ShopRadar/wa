@@ -426,13 +426,16 @@ window.addEventListener('beforeinstallprompt', (e) => {
 </script>
 
 
-<!-- Overlay PWA Installation -->
 <div id="install-overlay">
+  <div id="install-info-message" style="margin-bottom: 20px; font-size: 18px;">
+    Pour une meilleure, veuillez cliquer sur le bouton ci-dessous.
+  </div>
   <button id="start-install">📲 Améliorer l'affichage</button>
   <div class="loader" style="display: none;"></div>
   <div id="install-message">✅ Installation terminée, veuillez redémarrer l’appli</div>
   <button id="btn-restart" style="display: none;" onclick="window.location.href='https://wa.me/33767580723'">Redémarrer</button>
 </div>
+
 
 
 </body>
