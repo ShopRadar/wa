@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Boutique WhatsApp V2</title>
-  <link rel="manifest" href="/wa/manifest.json" />
   <meta name="theme-color" content="#25D366" />
+  <link rel="manifest" href="/wa/manifest.json" />
   <style>
     body { margin: 0; font-family: sans-serif; background: #fff; }
 
@@ -18,6 +18,23 @@
       display: flex; justify-content: center; align-items: center;
       font-size: 24px; cursor: pointer;
       box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+
+    .badge {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background: white;
+      color: black;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 14px;
+      margin-right: 5px;
+    }
+
+    .badge.taille {
+      left: auto;
+      right: 10px;
     }
 
     #barre-panier {
@@ -35,10 +52,53 @@
     }
 
     #barre-panier .icon-btn {
-      background: none;
-      border: none;
-      font-size: 22px;
-      cursor: pointer;
+      background: none; border: none; font-size: 22px; cursor: pointer;
+    }
+
+    #lightbox {
+      display: none; position: fixed; inset: 0; background: #000;
+      z-index: 9999; flex-direction: column;
+    }
+
+    #lightbox-header {
+      position: absolute; top: 0; left: 0; right: 0;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 20px; z-index: 10;
+    }
+
+    #lightbox-header button,
+    #lightbox-header .add-btn {
+      background: none; border: none; color: white;
+      font-size: 24px; cursor: pointer;
+    }
+
+    #quantite-controls {
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    #lightbox-content {
+      flex: 1; overflow-x: auto; display: flex;
+      scroll-snap-type: x mandatory; scroll-behavior: smooth;
+    }
+
+    .slide {
+      min-width: 100vw; height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      scroll-snap-align: center; background: black;
+    }
+
+    .slide img {
+      width: 100vw; max-height: 80vh;
+      object-fit: contain; transition: transform 0.3s ease;
+    }
+
+    #lightbox-footer {
+      position: absolute;
+      bottom: 0; width: 100%;
+      background: rgba(0,0,0,0.8);
+      color: white; text-align: center;
+      padding: 10px; font-size: 16px;
     }
 
     #splash {
@@ -61,55 +121,11 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-
-    /* Overlay installation */
-    #install-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.8);
-      z-index: 9999;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      color: white;
-      text-align: center;
-      padding: 20px;
-    }
-
-    #install-button {
-      padding: 12px 20px;
-      font-size: 16px;
-      background: #25D366;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      margin-top: 20px;
-    }
-
-    .loader-install {
-      border: 6px solid #f3f3f3;
-      border-top: 6px solid #25D366;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 1s linear infinite;
-      display: none;
-      margin-top: 30px;
-    }
   </style>
 </head>
 <body>
-
-<!-- Splash écran -->
 <div id="splash"><div class="loader"></div></div>
-
-<!-- Catalogue produits -->
 <div id="catalogue"></div>
-
-<!-- Barre panier -->
 <div id="barre-panier" style="display: none;">
   <div style="display: flex; align-items: center; gap: 10px;">
     <span id="panier-info">0 article - 0.00€</span>
@@ -118,34 +134,50 @@
   <button onclick="commander()">Envoyer</button>
 </div>
 
-<!-- Overlay installation PWA -->
-<div id="install-overlay">
-  <p>Pour une meilleure expérience, ajoutez cette application à votre écran d’accueil.</p>
-  <button id="install-button">📲 Améliorer l'affichage</button>
-  <div class="loader-install" id="install-loader"></div>
+  <!-- Lightbox -->
+<div id="lightbox">
+  <div id="lightbox-header">
+    <button onclick="fermerLightbox()">←</button>
+    <div id="quantite-controls">
+      <button onclick="modifierQuantiteActuel(-1)">−</button>
+      <span id="quantite-affichee">1</span>
+      <button onclick="modifierQuantiteActuel(1)">+</button>
+    </div>
+    <button onclick="ajouterProduitActuel()">Ajouter</button>
+  </div>
+  <div id="lightbox-content"></div>
+  <div id="lightbox-footer"><span id="caption"></span></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script>
   const panier = [];
   let produits = [];
+  let currentIndex = 0;
+  let quantiteSelectionnee = 1;
 
-  window.addEventListener('load', () => {
-    document.getElementById('splash').style.display = 'none';
-  });
-
-  function ajouterProduit(nom, prix) {
+  function ajouterProduit(nom, prix, qte = 1) {
     const exist = panier.find(p => p.nom === nom);
-    if (exist) exist.quantite++;
-    else panier.push({ nom, prix, quantite: 1 });
+    if (exist) exist.quantite += qte;
+    else panier.push({ nom, prix, quantite: qte });
     afficherPanier();
+  }
+
+  function ajouterProduitActuel() {
+    const p = produits[currentIndex];
+    if (p) ajouterProduit(p.nom, p.prix, quantiteSelectionnee);
+  }
+
+  function modifierQuantiteActuel(delta) {
+    quantiteSelectionnee += delta;
+    if (quantiteSelectionnee < 1) quantiteSelectionnee = 1;
+    document.getElementById('quantite-affichee').innerText = quantiteSelectionnee;
   }
 
   function afficherPanier() {
     const total = panier.reduce((acc, p) => acc + parseFloat(p.prix) * p.quantite, 0);
     const quantiteTotale = panier.reduce((acc, p) => acc + p.quantite, 0);
-    document.getElementById('panier-info').innerText =
-      `${quantiteTotale} article${quantiteTotale > 1 ? 's' : ''} - ${total.toFixed(2)}€`;
+    document.getElementById('panier-info').innerText = `${quantiteTotale} article${quantiteTotale > 1 ? 's' : ''} - ${total.toFixed(2)}€`;
     document.getElementById('barre-panier').style.display = total > 0 ? 'flex' : 'none';
   }
 
@@ -157,9 +189,42 @@
       total += parseFloat(p.prix) * p.quantite;
     });
     message += `\nTotal : ${total.toFixed(2)} €`;
-    const lien = 'https://wa.me/33767580723?text=' + encodeURIComponent(message);
-    window.open(lien, '_blank');
+    window.open('https://wa.me/33767580723?text=' + encodeURIComponent(message), '_blank');
   }
+
+  function ouvrirLightbox(index) {
+    const lightbox = document.getElementById('lightbox');
+    const lightboxContent = document.getElementById('lightbox-content');
+    const caption = document.getElementById('caption');
+    lightboxContent.innerHTML = '';
+    produits.forEach(p => {
+      const slide = document.createElement('div');
+      slide.className = 'slide';
+      slide.innerHTML = `<img src="${p.image}" alt="${p.nom}"/>`;
+      lightboxContent.appendChild(slide);
+    });
+    lightbox.style.display = 'flex';
+    currentIndex = index;
+    quantiteSelectionnee = 1;
+    document.getElementById('quantite-affichee').innerText = quantiteSelectionnee;
+    const p = produits[index];
+    caption.innerText = `${p.nom} — ${p.taille || ''} — ${p.prix} €`;
+    setTimeout(() => {
+      lightboxContent.scrollTo({ left: index * window.innerWidth });
+    }, 50);
+  }
+
+  function fermerLightbox() {
+    document.getElementById('lightbox').style.display = 'none';
+  }
+
+  function afficherDetailsPanier() {
+    alert(panier.map(p => `${p.quantite} × ${p.nom} (${p.prix} €)`).join('\n'));
+  }
+
+  window.addEventListener('load', () => {
+    document.getElementById('splash').style.display = 'none';
+  });
 
   fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vQ907oIlbF-e-80I-pn89CWFJ4R3er2Q9ycZt5j63oaraExSQvdOznc33F_20mh1z_oMKpCSWDw8MtO/pub?gid=0&single=true&output=csv")
     .then(r => r.text())
@@ -183,38 +248,14 @@
       produits.forEach((p, index) => {
         const bloc = `
           <div class="produit">
-            <img src="${p.image}" alt="${p.nom}" onclick="ajouterProduit('${p.nom}', '${p.prix}')">
+            <img src="${p.image}" alt="${p.nom}" onclick="ouvrirLightbox(${index})">
             <div class="add-btn" onclick="ajouterProduit('${p.nom}', '${p.prix}')">+</div>
+            <div class="badge">${p.prix} €</div>
+            <div class="badge taille">${p.taille}</div>
           </div>`;
         catalogue.insertAdjacentHTML('beforeend', bloc);
       });
     });
-
-  // INSTALLATION PWA OVERLAY
-  let deferredPrompt;
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-
-    const overlay = document.getElementById('install-overlay');
-    const installBtn = document.getElementById('install-button');
-    const loader = document.getElementById('install-loader');
-
-    overlay.style.display = 'flex';
-
-    installBtn.addEventListener('click', () => {
-      installBtn.style.display = 'none';
-      loader.style.display = 'block';
-
-      deferredPrompt.prompt();
-
-      setTimeout(() => {
-        loader.style.display = 'none';
-        overlay.style.display = 'none';
-        history.back(); // Simule retour
-      }, 5000);
-    });
-  });
 </script>
 </body>
 </html>
