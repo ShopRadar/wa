@@ -161,6 +161,49 @@
       cursor: pointer;
     }
 
+
+    #install-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 99999;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  text-align: center;
+  padding: 20px;
+}
+
+#install-overlay .loader {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #25D366;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+#install-overlay button {
+  background: #25D366;
+  border: none;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 15px;
+  display: inline-block;
+}
+
+#install-overlay #install-message {
+  margin-top: 20px;
+  font-size: 18px;
+  display: none;
+}
+
   </style>
 </head>
 <body>
@@ -354,29 +397,43 @@ let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  document.getElementById('install-container').style.display = 'block';
-  document.getElementById('install-button').addEventListener('click', () => {
-    document.getElementById('install-container').style.display = 'none';
-    document.getElementById('install-overlay').style.display = 'flex';
 
-    // Montre le loader pendant 5s
+  const overlay = document.getElementById('install-overlay');
+  const startBtn = document.getElementById('start-install');
+  const loader = overlay.querySelector('.loader');
+  const message = document.getElementById('install-message');
+  const restartBtn = document.getElementById('btn-restart');
+
+  overlay.style.display = 'flex';
+
+  startBtn.addEventListener('click', async () => {
+    startBtn.style.display = 'none';
+    loader.style.display = 'block';
+
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt = null;
+    }
+
     setTimeout(() => {
-      document.getElementById('install-overlay').style.display = 'none';
-      // Simule un retour arrière
-      history.back();
+      loader.style.display = 'none';
+      message.style.display = 'block';
+      restartBtn.style.display = 'inline-block';
     }, 5000);
-
-    deferredPrompt.prompt();
   });
 });
 
 </script>
 
 
-  <!-- Overlay installation -->
-<div id="install-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 99999; align-items: center; justify-content: center;">
-  <div class="loader"></div>
+<!-- Overlay PWA Installation -->
+<div id="install-overlay">
+  <button id="start-install">📲 Améliorer l'affichage</button>
+  <div class="loader" style="display: none;"></div>
+  <div id="install-message">✅ Installation terminée, veuillez redémarrer l’appli</div>
+  <button id="btn-restart" style="display: none;" onclick="window.location.href='https://wa.me/33767580723'">Redémarrer</button>
 </div>
+
 
 </body>
 </html>
