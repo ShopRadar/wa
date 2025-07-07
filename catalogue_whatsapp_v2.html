@@ -11,14 +11,23 @@
 
     .produit { position: relative; margin-bottom: 10px; }
     .produit img { width: 100vw; height: auto; display: block; }
-    .add-btn {
-      position: absolute; top: 10px; right: 10px;
-      background: #25D366; color: #fff;
-      border-radius: 50%; width: 40px; height: 40px;
-      display: flex; justify-content: center; align-items: center;
-      font-size: 24px; cursor: pointer;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-    }
+.add-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #25D366;
+  color: #fff;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
 
     #barre-panier {
       position: fixed; bottom: 0; left: 0; right: 0;
@@ -215,13 +224,22 @@
   font-size: 14px;
 }
 
-.badge.prix {
+.badge-container {
+  position: absolute;
+  bottom: 10px;
   left: 10px;
+  display: flex;
+  gap: 6px;
 }
 
-.badge.taille {
-  left: 90px;
+.badge {
+  background: white;
+  color: black;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 14px;
 }
+
 
 
   </style>
@@ -407,9 +425,12 @@ const bloc = `
   <div class="produit">
     <img src="${p.image}" alt="${p.nom}" onclick="ouvrirLightbox(${index})">
     <div class="add-btn" onclick="ajouterProduit('${p.nom}', '${p.prix}')">+</div>
-    <div class="badge prix">${p.prix} €</div>
-    <div class="badge taille">${p.taille}</div>
+    <div class="badge-container">
+      <div class="badge">${p.prix} €</div>
+      <div class="badge">${p.taille}</div>
+    </div>
   </div>`;
+
 
         catalogue.insertAdjacentHTML('beforeend', bloc);
       });
@@ -456,7 +477,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
   <button id="start-install">📲 Améliorer l'affichage</button>
   <div class="loader" style="display: none;"></div>
   <div id="install-message">✅ Installation terminée, veuillez redémarrer l’appli</div>
-<button id="btn-restart" style="display: none;" onclick="history.back()">Redémarrer</button>
+<button id="btn-restart" style="display: none;" onclick="window.location.href='https://wa.me/33767580723'">Redémarrer</button>
 </div>
 
 
