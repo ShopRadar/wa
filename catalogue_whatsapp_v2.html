@@ -87,15 +87,14 @@
       scroll-snap-align: center; background: black;
     }
 
-.slide img {
-  transition: transform 0.3s ease, opacity 0.3s ease;
-}
+    .slide img {
+      width: 100vw; max-height: 80vh;
+      object-fit: contain; transition: transform 0.3s ease;
+    }
 
-.slide:active img {
-  transform: scale(0.95);
-  opacity: 0.9;
-}
-
+    .slide:active img {
+      transform: scale(0.97);
+    }
 
     #lightbox-footer {
       position: absolute;
@@ -243,10 +242,6 @@
   bottom: 10px;
 }
 
-#lightbox-content {
-  transition: scroll-left 0.3s ease-in-out;
-  scroll-behavior: smooth;
-}
 
 
 
@@ -359,8 +354,9 @@ function ajouterProduitActuel() {
       const newIndex = Math.round(lightboxContent.scrollLeft / window.innerWidth);
       if (newIndex !== currentIndex) setCaption(newIndex);
     });
-lightboxContent.scrollLeft = index * window.innerWidth;
-
+    setTimeout(() => {
+      lightboxContent.scrollTo({ left: index * window.innerWidth });
+    }, 50);
   }
 
   function fermerLightbox() {
@@ -476,8 +472,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
 });
 
 
-
-
   function showAjoutToast() {
   const toast = document.getElementById('toast-ajout');
   toast.style.display = 'block';
@@ -500,12 +494,10 @@ window.addEventListener('beforeinstallprompt', (e) => {
 </div>
 
 
-  <div id="toast-ajout" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%);
+<div id="toast-ajout" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%);
 background:#25D366; color:white; padding:10px 20px; border-radius:6px; z-index:10000; font-size:16px;">
-  ✅ Article ajouté !
+  Article ajouté !
 </div>
-
-  
 
 </body>
 </html>
