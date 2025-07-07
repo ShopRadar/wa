@@ -345,33 +345,42 @@ function ajouterProduitActuel() {
     window.open(lien, '_blank');
   }
 
-  function ouvrirLightbox(index) {
-    const lightbox = document.getElementById('lightbox');
-    const lightboxContent = document.getElementById('lightbox-content');
-    const caption = document.getElementById('caption');
-    lightboxContent.innerHTML = '';
-    produits.forEach((p) => {
-      const slide = document.createElement('div');
-      slide.className = 'slide';
-      slide.innerHTML = `<img src="${p.image}" />`;
-      lightboxContent.appendChild(slide);
-    });
-    history.pushState(null, null, location.href);
-    lightbox.style.display = 'flex';
-    const setCaption = (i) => {
-      const p = produits[i];
-      caption.innerText = `${p.nom} — ${p.taille || ''} — ${p.prix} €`;
-      currentIndex = i;
-    };
+function ouvrirLightbox(index) {
+  const lightbox = document.getElementById('lightbox');
+  const lightboxContent = document.getElementById('lightbox-content');
+  const caption = document.getElementById('caption');
+  lightboxContent.innerHTML = '';
+
+  produits.forEach((p) => {
+    const slide = document.createElement('div');
+    slide.className = 'slide';
+    slide.innerHTML = `<img src="${p.image}" />`;
+    lightboxContent.appendChild(slide);
+  });
+
+  const setCaption = (i) => {
+    const p = produits[i];
+    caption.innerText = `${p.nom} — ${p.taille || ''} — ${p.prix} €`;
+    currentIndex = i;
+  };
+
+  // Scroll SANS effet visible
+  requestAnimationFrame(() => {
+    lightboxContent.scrollLeft = index * window.innerWidth;
     setCaption(index);
-    lightboxContent.addEventListener('scroll', () => {
-      const newIndex = Math.round(lightboxContent.scrollLeft / window.innerWidth);
-      if (newIndex !== currentIndex) setCaption(newIndex);
-    });
-    setTimeout(() => {
-      lightboxContent.scrollTo({ left: index * window.innerWidth });
-    }, 50);
-  }
+    lightbox.style.display = 'flex';
+  });
+
+  // Mettre à jour le titre quand on scrolle
+  lightboxContent.addEventListener('scroll', () => {
+    const newIndex = Math.round(lightboxContent.scrollLeft / window.innerWidth);
+    if (newIndex !== currentIndex) setCaption(newIndex);
+  });
+
+  // Intercepter le bouton précédent pour fermer
+  history.pushState(null, null, location.href);
+}
+
 
 
   // Gestion du bouton précédent du smartphone pour la lightbox
