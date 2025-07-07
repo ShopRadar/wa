@@ -325,7 +325,7 @@
       total += parseFloat(p.prix) * p.quantite;
     });
     message += `\nTotal : ${total.toFixed(2)} €`;
-    const lien = 'https://wa.me/33767580723' + encodeURIComponent(message);
+    const lien = 'https://wa.me/33767580723?text=' + encodeURIComponent(message);
     window.open(lien, '_blank');
   }
 
