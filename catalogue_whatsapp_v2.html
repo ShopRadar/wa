@@ -429,8 +429,8 @@ const bloc = `
   <div class="produit">
     <img src="${p.image}" alt="${p.nom}" onclick="ouvrirLightbox(${index})">
     <div class="add-btn" onclick="ajouterProduit('${p.nom}', '${p.prix}')">+</div>
-    <div class="badge taille">${p.taille} €</div>
-    <div class="badge prix">${p.prix}</div>
+    <div class="badge prix">${p.prix} €</div>
+    <div class="badge taille">${p.taille}</div>
   </div>`;
 
         catalogue.insertAdjacentHTML('beforeend', bloc);
