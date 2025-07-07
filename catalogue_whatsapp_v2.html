@@ -87,14 +87,15 @@
       scroll-snap-align: center; background: black;
     }
 
-    .slide img {
-      width: 100vw; max-height: 80vh;
-      object-fit: contain; transition: transform 0.3s ease;
-    }
+.slide img {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
 
-    .slide:active img {
-      transform: scale(0.97);
-    }
+.slide:active img {
+  transform: scale(0.95);
+  opacity: 0.9;
+}
+
 
     #lightbox-footer {
       position: absolute;
@@ -232,16 +233,19 @@
   font-size: 14px;
 }
 
-.badge.prix {
+.badge.taille {
   left: 10px;
   bottom: 10px;
 }
 
-.badge.taille {
-  left: auto;
+.badge.prix {
+  left: 70px;
   bottom: 10px;
-  margin-left: 20px;
-  transform: translateX(calc(5px + 100%));
+}
+
+#lightbox-content {
+  transition: scroll-left 0.3s ease-in-out;
+  scroll-behavior: smooth;
 }
 
 
@@ -304,10 +308,14 @@
     afficherPanier();
   }
 
-  function ajouterProduitActuel() {
-    const p = produits[currentIndex];
-    if (p) ajouterProduit(p.nom, p.prix);
+function ajouterProduitActuel() {
+  const p = produits[currentIndex];
+  if (p) {
+    ajouterProduit(p.nom, p.prix);
+    showAjoutToast();
   }
+}
+
 
   function afficherPanier() {
     const total = panier.reduce((acc, p) => acc + parseFloat(p.prix) * p.quantite, 0);
@@ -351,9 +359,8 @@
       const newIndex = Math.round(lightboxContent.scrollLeft / window.innerWidth);
       if (newIndex !== currentIndex) setCaption(newIndex);
     });
-    setTimeout(() => {
-      lightboxContent.scrollTo({ left: index * window.innerWidth });
-    }, 50);
+lightboxContent.scrollLeft = index * window.innerWidth;
+
   }
 
   function fermerLightbox() {
@@ -468,6 +475,17 @@ window.addEventListener('beforeinstallprompt', (e) => {
   });
 });
 
+
+
+
+  function showAjoutToast() {
+  const toast = document.getElementById('toast-ajout');
+  toast.style.display = 'block';
+  setTimeout(() => {
+    toast.style.display = 'none';
+  }, 1000);
+}
+
 </script>
 
 
@@ -482,6 +500,12 @@ window.addEventListener('beforeinstallprompt', (e) => {
 </div>
 
 
+  <div id="toast-ajout" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%);
+background:#25D366; color:white; padding:10px 20px; border-radius:6px; z-index:10000; font-size:16px;">
+  ✅ Article ajouté !
+</div>
+
+  
 
 </body>
 </html>
