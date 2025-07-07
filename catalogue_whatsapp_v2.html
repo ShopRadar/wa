@@ -325,7 +325,7 @@
       total += parseFloat(p.prix) * p.quantite;
     });
     message += `\nTotal : ${total.toFixed(2)} €`;
-    const lien = 'https://api.whatsapp.com/send?phone=33767580723?text=' + encodeURIComponent(message);
+    const lien = 'https://wa.me/33767580723' + encodeURIComponent(message);
     window.open(lien, '_blank');
   }
 
@@ -429,8 +429,8 @@ const bloc = `
   <div class="produit">
     <img src="${p.image}" alt="${p.nom}" onclick="ouvrirLightbox(${index})">
     <div class="add-btn" onclick="ajouterProduit('${p.nom}', '${p.prix}')">+</div>
-    <div class="badge prix">${p.prix} €</div>
-    <div class="badge taille">${p.taille}</div>
+    <div class="badge taille">${p.taille} €</div>
+    <div class="badge prix">${p.prix}</div>
   </div>`;
 
         catalogue.insertAdjacentHTML('beforeend', bloc);
@@ -478,7 +478,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
   <button id="start-install">📲 Améliorer l'affichage</button>
   <div class="loader" style="display: none;"></div>
   <div id="install-message">✅ Installation terminée, veuillez redémarrer l’appli</div>
-<button id="btn-restart" style="display: none;" onclick="window.location.href='https://api.whatsapp.com/send?phone=33767580723'">Redémarrer</button>
+<button id="btn-restart" style="display: none;" onclick="window.location.href='https://wa.me/33767580723'">Redémarrer</button>
 </div>
 
 
