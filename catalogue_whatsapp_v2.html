@@ -356,6 +356,7 @@ function ajouterProduitActuel() {
       slide.innerHTML = `<img src="${p.image}" />`;
       lightboxContent.appendChild(slide);
     });
+    history.pushState(null, null, location.href);
     lightbox.style.display = 'flex';
     const setCaption = (i) => {
       const p = produits[i];
@@ -371,6 +372,17 @@ function ajouterProduitActuel() {
       lightboxContent.scrollTo({ left: index * window.innerWidth });
     }, 50);
   }
+
+
+  // Gestion du bouton précédent du smartphone pour la lightbox
+window.addEventListener("popstate", (event) => {
+  if (document.getElementById("lightbox").style.display === "flex") {
+    fermerLightbox();
+    // Réinjection d'une nouvelle state pour ne pas sortir encore
+    history.pushState(null, null, location.href);
+  }
+});
+
 
   function fermerLightbox() {
     document.getElementById('lightbox').style.display = 'none';
