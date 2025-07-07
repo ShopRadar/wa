@@ -358,28 +358,28 @@ function ouvrirLightbox(index) {
     lightboxContent.appendChild(slide);
   });
 
+  lightbox.style.display = 'flex';
+
   const setCaption = (i) => {
     const p = produits[i];
     caption.innerText = `${p.nom} — ${p.taille || ''} — ${p.prix} €`;
     currentIndex = i;
   };
 
-  // Scroll SANS effet visible
-  requestAnimationFrame(() => {
+  // ⚠️ Important : attendre que lightbox soit visible pour scroller
+  setTimeout(() => {
     lightboxContent.scrollLeft = index * window.innerWidth;
     setCaption(index);
-    lightbox.style.display = 'flex';
-  });
+  }, 0);
 
-  // Mettre à jour le titre quand on scrolle
   lightboxContent.addEventListener('scroll', () => {
     const newIndex = Math.round(lightboxContent.scrollLeft / window.innerWidth);
     if (newIndex !== currentIndex) setCaption(newIndex);
   });
 
-  // Intercepter le bouton précédent pour fermer
   history.pushState(null, null, location.href);
 }
+
 
 
 
