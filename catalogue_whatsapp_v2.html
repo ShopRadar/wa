@@ -349,8 +349,12 @@ function ouvrirLightbox(index) {
   const lightbox = document.getElementById('lightbox');
   const lightboxContent = document.getElementById('lightbox-content');
   const caption = document.getElementById('caption');
-  lightboxContent.innerHTML = '';
 
+  // Nettoyage
+  lightboxContent.innerHTML = '';
+  lightbox.style.display = 'flex';
+
+  // Création des slides
   produits.forEach((p) => {
     const slide = document.createElement('div');
     slide.className = 'slide';
@@ -358,27 +362,33 @@ function ouvrirLightbox(index) {
     lightboxContent.appendChild(slide);
   });
 
-  lightbox.style.display = 'flex';
+  // Désactiver scroll smooth temporairement
+  lightboxContent.style.scrollBehavior = 'auto';
 
-  const setCaption = (i) => {
-    const p = produits[i];
-    caption.innerText = `${p.nom} — ${p.taille || ''} — ${p.prix} €`;
-    currentIndex = i;
-  };
+  // Forcer affichage sans animation
+  lightboxContent.scrollLeft = index * window.innerWidth;
+  currentIndex = index;
+  caption.innerText = `${produits[index].nom} — ${produits[index].taille || ''} — ${produits[index].prix} €`;
 
-  // ⚠️ Important : attendre que lightbox soit visible pour scroller
+  // Réactiver scroll smooth après 1 tick
   setTimeout(() => {
-    lightboxContent.scrollLeft = index * window.innerWidth;
-    setCaption(index);
+    lightboxContent.style.scrollBehavior = 'smooth';
   }, 0);
 
+  // Gestion du scroll manuel
   lightboxContent.addEventListener('scroll', () => {
     const newIndex = Math.round(lightboxContent.scrollLeft / window.innerWidth);
-    if (newIndex !== currentIndex) setCaption(newIndex);
+    if (newIndex !== currentIndex) {
+      currentIndex = newIndex;
+      const p = produits[newIndex];
+      caption.innerText = `${p.nom} — ${p.taille || ''} — ${p.prix} €`;
+    }
   });
 
+  // Empêche fermeture de la PWA sur bouton précédent
   history.pushState(null, null, location.href);
 }
+
 
 
 
