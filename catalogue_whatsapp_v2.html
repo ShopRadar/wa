@@ -294,7 +294,7 @@
 
 <!-- Popup contenu panier -->
 <div id="popup-panier">
-  <h2>Mon panier</h2>
+  <h2>Ma liste</h2>
   <div id="contenu-popup-panier"></div>
   <button class="close-btn" onclick="fermerDetailsPanier()">Fermer</button>
 </div>
@@ -475,7 +475,7 @@ window.addEventListener("popstate", (event) => {
 const bloc = `
   <div class="produit">
     <img src="${p.image}" alt="${p.nom}" onclick="ouvrirLightbox(${index})">
-    <div class="add-btn" onclick="ajouterProduit('${p.nom}', '${p.prix}')">+</div>
+<div class="add-btn" onclick="ajouterProduit('${p.nom}', '${p.prix}'); showAjoutToast();">+</div>
     <div class="badge prix">${p.prix} €</div>
     <div class="badge taille">${p.taille}</div>
   </div>`;
