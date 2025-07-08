@@ -536,9 +536,15 @@ function isInStandaloneMode() {
 }
 
 // Affiche le message uniquement sur iOS si la PWA n'est pas installée
-if (isIOS() && !isInStandaloneMode()) {
-  document.getElementById('ios-install-banner').style.display = 'block';
-}
+window.addEventListener('load', () => {
+  document.getElementById('splash').style.display = 'none';
+
+  // Afficher bannière iOS si nécessaire
+  if (isIOS() && !isInStandaloneMode()) {
+    const banner = document.getElementById('ios-install-banner');
+    if (banner) banner.style.display = 'block';
+  }
+});
 
 </script>
 
